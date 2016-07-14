@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template_main.xhtml">
+
+	<ui:define name="head">
+		<title>Cobranza</title>
+		<f:event listener="#{cobranzaController.initConversation}"
+			type="preRenderView"></f:event>
+	</ui:define>
+	<ui:define name="content">
+
+		<!--BEGIN CONTENT-->
+		<div class="content">
+			<section class="content-header">
+				<div class="pull-left" style="padding-top: 8px;">
+					<h:form id="formBotonesHeader" style="padding-left: 10px;">
+						<div class="btn-group-demo">
+							<div class="btn-group">
+								<p:commandLink id="buttonCancelar" value="&#160; Cancelar"
+									styleClass="btn btn-warning ion-minus-circled"
+									rendered="#{cobranzaController.modificar or cobranzaController.registrar}"
+									update=":formReg,:formBotonesHeader,:formTableMovimientoCuentas"
+									style="height:31px; padding:center"
+									action="#{cobranzaController.actualizarFormReg()}">
+								</p:commandLink>
+								<p:commandLink id="buttonCrear1" value="&#160; Nuevo Cuenta"
+									styleClass="btn btn-success ion-plus-round"
+									rendered="#{cobranzaController.crear}"
+									update=":formTableMovimientoCuentas,:formReg,:formBotonesHeader"
+									action="#{cobranzaController.cambiarAspecto()}"
+									style="height:31px;">
+								</p:commandLink>
+								<p:commandLink id="buttonRegistrar" value="&#160; Registrar"
+									styleClass="btn btn-success ion-checkmark"
+									style="height:31px; padding:center"
+									rendered="#{cobranzaController.registrar}"
+									update=":formTableMovimientoCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cobranzaController.registrar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonModificar" value="&#160; Modificar"
+									styleClass="btn btn-primary ion-edit"
+									rendered="#{cobranzaController.modificar}"
+									style="height:31px; padding:center"
+									update=":formTableMovimientoCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cobranzaController.modificar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonEliminar" value="&#160; Eliminar"
+									styleClass="btn btn-danger ion-close"
+									style="height:31px; padding:center"
+									rendered="#{cobranzaController.modificar}"
+									update=":formTableMovimientoCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cobranzaController.eliminar()}">
+								</p:commandLink>
+							</div>
+						</div>
+					</h:form>
+				</div>
+				<div class="pull-right">
+					<ol class="breadcrumb">
+						<li><a href="#{request.contextPath}/pages/dashboard.jsf"
+							style="color: #0090FF; font-size: 12px;">Inicio</a></li>
+						<li><a
+							href="#{request.contextPath}/pages/formulario/cuentas.xhtml"
+							style="color: #0090FF; font-size: 12px;">Venta</a></li>
+						<li class="active" style="font-size: 12px;">Cuenta</li>
+					</ol>
+				</div>
+			</section>
+			<section class="main-content">
+				<section class="main-content">
+					<div class="row">
+						<h:form id="formReg">
+							<ui:fragment
+								rendered="#{cobranzaController.modificar or cobranzaController.registrar}">
+								<div class="col-md-4">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Datos Cobranza</h3>
+										</div>
+										<div class="panel-body">
+											<!-- start here register -->
+											<div class="row">
+
+												<div class="col-md-12 box-content form-horizontal">
+
+													<div class="form-group">
+														<div class="col-md-4">Cuenta</div>
+														<div class="col-md-8">
+															<p:autoComplete id="cuentaBanco" style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																value="#{cobranzaController.selectedCuenta.id}"
+																completeMethod="#{cobranzaController.completeCuenta}"
+																minQueryLength="2" forceSelection="true" var="_var"
+																itemLabel="#{_var}" itemValue="#{_var.id}"
+																placeholder="Escriba Banco" maxResults="10"
+																dropdown="true">
+
+																<p:ajax event="itemSelect"
+																	update="cuentaBanco,nuemeroCuentaID,tipoMonedaID,saldoID"
+																	listener="#{cobranzaController.onRowSelectCuentaClick}" />
+
+																<p:column>
+																	<h:outputText value="#{_var.id}" />
+																</p:column>
+	<p:column>
+																	<h:outputText value="#{_var.numeroCuenta}" />
+																</p:column>
+																<p:column>
+																	<h:outputText value="#{_var.banco.nombre}" />
+																</p:column>
+
+															</p:autoComplete>
+														</div>
+
+													</div>
+													<div class="form-group ">
+													<div class="col-md-4"></div>
+														<div class="col-md-8">
+															<h:inputText id="nuemeroCuentaID"
+																value="Cuenta /  #{cobranzaController.selectedCuenta.numeroCuenta}"
+																style=" color: #555555; background-image: none; padding: 0 10px;"
+																styleClass="input-sm form-control" required="true"
+																disabled="true" />
+
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Fecha</div>
+														<div class="col-md-8">
+															<p:calendar id="fechaCompra"
+																value="#{newMovimientoCuentas.fechaRegistro}"
+																locale="es" styleClass="myWid100" required="true"
+																requiredMessage="Fecha Venc. requerido"
+																pattern="dd/MM/yyyy">
+
+																<p:ajax event="dateSelect" />
+															</p:calendar>
+														</div>
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Ciudad</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newMovimientoCuentas.lugar}"
+																style=" color: #555555; background-image: none; padding: 0 10px;"
+																styleClass="input-sm form-control" required="true">
+																<p:ajax event="change" />
+															</h:inputText>
+
+														</div>
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Tipo Moneda</div>
+														<div class="col-md-8">
+
+															<h:selectOneMenu id="tipoMonedaID"
+																value="#{newMovimientoCuentas.cuenta.tipoMoneda}"
+																style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																styleClass="input-sm form-control">
+																<f:selectItem itemLabel="Nacional" itemValue="NACIONAL" />
+																<f:selectItem itemLabel="Extranjera"
+																	itemValue="EXTRANJERA" />
+																<p:ajax event="change" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+
+
+													<div class="form-group ">
+														<div class="col-md-4">Saldo</div>
+														<div class="col-md-8">
+															<h:inputText id="saldoID"
+																value="#{newMovimientoCuentas.cuenta.saldo}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+													
+													<div class="form-group ">
+														<div class="col-md-4">Saldo</div>
+														<div class="col-md-8">
+															<h:inputText id="montoID"
+																value="#{cobranzaController.montoCancelado}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+
+													<div class="form-group ">
+
+														<p:selectOneRadio id="customRadio"
+															value="#{newMovimientoCuentas.tipoTransaccion}"
+															layout="custom">
+															<f:selectItem itemLabel="Deposito" itemValue="DEPOSITO" />
+															<f:selectItem itemLabel="Retiro" itemValue="RETIRO" />
+															<p:ajax event="change" update="formReg" />
+														</p:selectOneRadio>
+														<div class="col-md-4">Transaccion</div>
+														<div class="col-md-8">
+															<div class="col-md-12">
+																<p:radioButton id="opt1" for="customRadio" itemIndex="0" />
+																<h:outputLabel for="opt1" value="Deposito" />
+															</div>
+															<div class="col-md-12">
+																<p:radioButton id="opt2" for="customRadio" itemIndex="1" />
+																<h:outputLabel for="opt2" value="Retiro" />
+															</div>
+														</div>
+
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Concepto</div>
+														<div class="col-md-8">
+															<h:inputTextarea
+																value="#{newMovimientoCuentas.descripcion}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputTextarea>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- end here register -->
+										</div>
+									</div>
+								</div>
+
+
+								<div class="col-md-8">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Lista Movimiento</h3>
+										</div>
+										<!-- start here datatable -->
+										<p:dataTable id="dataTableCuentas" var="item"
+											widgetVar="cuentasTable"
+											value="#{cobranzaController.listMovimientoCuentas}"
+											selectionMode="single"
+											style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+											emptyMessage="No se encontraron cuentas"
+											selection="#{cobranzaController.selectedMovimientoCuentas}"
+											rowKey="#{item.id}" reflow="true">
+											<p:ajax event="rowSelect"
+												listener="#{cobranzaController.onRowSelect}"
+												update=":formReg,:formBotonesHeader,:formTableMovimientoCuentas" />
+											<p:column width="5%" headerText="Código"
+												filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" filterBy="#{item.id}">
+												<h:outputText value="#{item.id}" />
+											</p:column>
+											<p:column headerText="Nro Transaccion" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.numeroTransaccion}">
+												<h:outputText value="#{item.numeroTransaccion}" />
+											</p:column>
+											<p:column headerText="Concepto" width="30%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.descripcion}">
+												<h:outputText value="#{item.descripcion}" />
+											</p:column>
+											<p:column headerText="Monto" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.montoNacional}">
+												<h:outputText value="#{item.montoNacional}" />
+											</p:column>
+											<p:column headerText="Tipo" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.transaccion}">
+												<h:outputText value="#{item.transaccion}" />
+											</p:column>
+
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												headerText="Estado" style="text-align:center;"
+												filterBy="#{item.estado}">
+												<span class="label label-success"><h:outputText
+														rendered="#{item.estado=='AC'}" value="Activo" /></span>
+												<span class="label label-danger"><h:outputText
+														rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" headerText="Usuario Reg."
+												filterBy="#{item.usuarioRegistro}">
+												<h:outputText value="#{item.usuarioRegistro}" />
+											</p:column>
+											<p:column width="10%" headerText="Fecha Reg."
+												style="text-align:center;"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.fechaRegistro}">
+												<h:outputText value="#{item.fechaRegistro}">
+													<f:convertDateTime pattern="dd/MM/yyyy" />
+												</h:outputText>
+											</p:column>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{cobranzaController.listMovimientoCuentas.size()} Registros en Total" />
+											</f:facet>
+										</p:dataTable>
+										<!-- end here datatable -->
+										<div class="panel-body"></div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+						<h:form id="formTableMovimientoCuentas">
+							<ui:fragment rendered="#{cobranzaController.crear}">
+								<div class="col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Lista Movimiento</h3>
+										</div>
+										<!-- start here datatable -->
+										<p:dataTable id="dataTableCuenta" var="item"
+											widgetVar="cuentasTable"
+											value="#{cobranzaController.listMovimientoCuentas}"
+											selectionMode="single"
+											style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+											emptyMessage="No se encontraron cuentas"
+											selection="#{cobranzaController.selectedMovimientoCuentas}"
+											rowKey="#{item.id}" reflow="true">
+											<p:ajax event="rowSelect"
+												listener="#{cobranzaController.onRowSelect}"
+												update=":formReg,:formBotonesHeader,:formTableMovimientoCuentas" />
+											<p:column width="5%" headerText="Código"
+												filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" filterBy="#{item.id}">
+												<h:outputText value="#{item.id}" />
+											</p:column>
+											<p:column headerText="Nro Transaccion" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.numeroTransaccion}">
+												<h:outputText value="#{item.numeroTransaccion}" />
+											</p:column>
+											<p:column headerText="Concepto" width="30%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.descripcion}">
+												<h:outputText value="#{item.descripcion}" />
+											</p:column>
+											<p:column headerText="Monto" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.montoNacional}">
+												<h:outputText value="#{item.montoNacional}" />
+											</p:column>
+											<p:column headerText="Tipo" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.transaccion}">
+												<h:outputText value="#{item.transaccion}" />
+											</p:column>
+
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												headerText="Estado" style="text-align:center;"
+												filterBy="#{item.estado}">
+												<span class="label label-success"><h:outputText
+														rendered="#{item.estado=='AC'}" value="Activo" /></span>
+												<span class="label label-danger"><h:outputText
+														rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" headerText="Usuario Reg."
+												filterBy="#{item.usuarioRegistro}">
+												<h:outputText value="#{item.usuarioRegistro}" />
+											</p:column>
+											<p:column width="10%" headerText="Fecha Reg."
+												style="text-align:center;"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.fechaRegistro}">
+												<h:outputText value="#{item.fechaRegistro}">
+													<f:convertDateTime pattern="dd/MM/yyyy" />
+												</h:outputText>
+											</p:column>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{cobranzaController.listMovimientoCuentas.size()} Registros en Total" />
+											</f:facet>
+										</p:dataTable>
+										<!-- end here datatable -->
+										<div class="panel-body"></div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+					</div>
+				</section>
+			</section>
+		</div>
+		<!--END CONTENT-->
+
+		<!-- START GROWL -->
+		<h:form id="formGrowl">
+			<p:growl id="msgs1" showDetail="true" />
+		</h:form>
+		<!-- END GROWL -->
+
+		<!-- START DIALOG -->
+		<p:dialog header="DIALOG TEST" widgetVar="dlg1" modal="true"
+			height="100%">
+		</p:dialog>
+		<!-- END DIALOG -->
+
+
+
+
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template_main.xhtml">
+
+
+	<ui:define name="head">
+		<title>Registro Cheques</title>
+
+		<f:event listener="#{registroChequesController.initConversation}"
+			type="preRenderView"></f:event>
+
+		<h:outputScript name="js/calendar-localization.js" />
+
+	</ui:define>
+
+	<ui:define name="content">
+		<!--BEGIN CONTENT-->
+		<div class="content">
+			<section class="main-content"
+				style="background-color: #f5f6f6; padding-top: 0px;">
+				<h:form id="form001">
+					<!-- BEGIN BUTTONS -->
+					<div class="row" style="background-color: #f9fafa;">
+						<section class="content-header">
+							<div class="pull-left"
+								style="padding-top: 8px; padding-left: 15px;">
+								<div class="btn-group-demo">
+									<div class="btn-group">
+
+
+										<p:commandLink id="buttonCancelar" value="&#160; Cancelar"
+											styleClass="btn btn-warning ion-minus-circled"
+											style="height:31px; padding:center" immediate="true"
+											onclick="location.href='#{request.contextPath}/pages/tesoreria/emision_cheques_manual.xhtml'">
+										</p:commandLink>
+
+
+										<p:commandLink id="buttonRegistrar" value="&#160; Registrar"
+											styleClass="btn btn-success ion-checkmark"
+											rendered="#{registroChequesController.crear and !registroChequesController.verReporte}"
+											style="height:31px;"
+											action="#{registroChequesController.registrarMovimientoCuenta()}">
+										</p:commandLink>
+
+										<p:commandLink id="buttonModificar" value="&#160; Modificar"
+											rendered="#{registroChequesController.modificar }"
+											styleClass="btn btn-primary ion-edit" style="height:31px;"
+											update="form001"
+											action="#{registroChequesController.modificarFacturaCompra()}">
+										</p:commandLink>
+
+										<p:commandLink id="buttonEliminar" value="&#160; Eliminar"
+											styleClass="btn btn-danger ion-trash-b" style="height:31px;"
+											rendered="#{registroChequesController.modificar }"
+											update="form001"
+											action="#{registroChequesController.eliminarFacturaCompra()}">
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="pull-right">
+								<ol class="breadcrumb">
+									<li><a href="#{request.contextPath}/index"
+										style="color: #0090FF; font-size: 12px;">Inicio</a></li>
+									<li><a href="#{request.contextPath}/user"
+										style="color: #0090FF; font-size: 12px;">Tesoreria</a></li>
+									<li class="active" style="font-size: 12px;">Pagos</li>
+								</ol>
+							</div>
+						</section>
+					</div>
+					<!-- END BUTTONS -->
+
+					<!-- BEGIN PANEL REGISTER -->
+
+					<div class="row" style="padding-top: 10px;">
+
+						<ui:fragment rendered="#{ ! registroChequesController.verReporte}">
+
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Datos Cheque | Nº</h3>
+									</div>
+									<div class="panel-body">
+										<div class="box-content form-horizontal">
+
+
+											<div class="col-md-12">
+												<div class="panel panel-default">
+
+													<div class="col-md-12">
+														<div class="col-md-12">
+															<div class="col-md-4">
+																<div class="form-group ">
+																	<div class="col-md-4"
+																		style="padding-right: 0px; padding-left: 5px;">
+																		<h:outputText value="Chequera" />
+																	</div>
+																	<div class="col-md-8">
+																		<p:autoComplete id="chequeraID" style="width: 100%"
+																			inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																			value="#{registroChequesController.selectedChequera.id}"
+																			completeMethod="#{registroChequesController.completeChequera}"
+																			minQueryLength="2" forceSelection="true" var="_var"
+																			itemLabel="#{_var}" itemValue="#{_var.id}"
+																			placeholder="Chequera" maxResults="10"
+																			dropdown="true">
+
+																			<p:ajax event="itemSelect" update=":form001"
+																				listener="#{registroChequesController.onRowSelectChequeraClick}" />
+
+																			<p:column>
+																				<h:outputText value="#{_var.secuencia}" />
+																			</p:column>
+																			<p:column>
+																				<h:outputText value="#{_var.cuenta.numeroCuenta}" />
+																			</p:column>
+																			<p:column>
+																				<h:outputText value="#{_var.banco.nombre}" />
+																			</p:column>
+
+																		</p:autoComplete>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-3">
+																<div class="form-group ">
+																	<div class="col-md-4">Fecha</div>
+																	<div class="col-md-8">
+																		<p:calendar id="fechaCompra"
+																			value="#{registroChequesController.newMovimientoCuentas.fechaRegistro}"
+																			locale="es" styleClass="myWid100" required="true"
+																			requiredMessage="Fecha Venc. requerido"
+																			pattern="dd/MM/yyyy">
+
+																			<p:ajax event="dateSelect" />
+																		</p:calendar>
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-3">
+																<div class="form-group ">
+																	<div class="col-md-4">Ciudad</div>
+																	<div class="col-md-8">
+																		<h:inputText
+																			value="#{registroChequesController.newMovimientoCuentas.lugar}"
+																			style=" color: #555555; background-image: none; padding: 0 10px;"
+																			styleClass="input-sm form-control" required="true">
+																			<p:ajax event="change" />
+																		</h:inputText>
+
+																	</div>
+																</div>
+															</div>
+															<div class="col-md-2">
+																<div class="form-group ">
+																	<div class="col-md-12"
+																		style="padding-right: 0px; padding-left: 5px;">
+																		<h:inputText
+																			value="Cheque /  #{registroChequesController.selectedChequera.secuencia}"
+																			style=" color: #555555; background-image: none; padding: 0 10px;"
+																			styleClass="input-sm form-control" required="true"
+																			disabled="true" />
+
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-12">
+
+														<div class="col-md-4">
+															<div class="form-group ">
+																<div class="col-md-4"
+																	style="padding-right: 0px; padding-left: 5px;">
+																	<h:outputText value="Numero Cuenta" />
+																</div>
+																<div class="col-md-8">
+																	<p:inputText
+																		value="#{registroChequesController.selectedChequera.cuenta.numeroCuenta}"
+																		style=" color: #555555; background-image: none; padding: 0 10px;"
+																		styleClass="input-sm form-control" required="true"
+																		disabled="true" requiredMessage="Nombre Requerido">
+																		<p:ajax event="change" />
+																	</p:inputText>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group ">
+																<div class="col-md-4"
+																	style="padding-right: 0px; padding-left: 5px;">
+																	<h:outputText value="Fecha Vencimiento" />
+																</div>
+																<div class="col-md-8">
+																	<p:calendar
+																		value="#{registroChequesController.newMovimientoCuentas.fechaLimiteEmision}"
+																		locale="es" styleClass="myWid100" required="true"
+																		pattern="dd/MM/yyyy">
+																		<p:ajax event="dateSelect" />
+																	</p:calendar>
+																</div>
+															</div>
+														</div>
+													</div>
+													<p:separator />
+													<div class="col-md-12">
+														<div class="col-md-3">
+															<div class="form-group ">
+																<div class="col-md-4"
+																	style="padding-right: 0px; padding-left: 5px;">
+																	<h:outputText value="Banco" />
+																</div>
+																<div class="col-md-8">
+																	<h:outputText
+																		value="#{registroChequesController.selectedChequera.banco.nombre}"
+																		style=" color: #555555; background-image: none; padding: 0 10px;"
+																		styleClass="input-sm form-control" required="true"
+																		requiredMessage="Banco Requerido">
+																	</h:outputText>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3">
+															<div class="form-group ">
+																<div class="col-md-4">Tipo Cambio</div>
+																<div class="col-md-8">
+																	<p:inputText id="inputText7"
+																		value="#{registroChequesController.newMovimientoCuentas.tipoCambio}"
+																		style=" color: #555555; background-image: none; padding: 0 10px;"
+																		styleClass="input-sm form-control" required="true"
+																		requiredMessage="Nombre Requerido">
+																		<p:ajax event="change" />
+																	</p:inputText>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3"></div>
+														<div class="col-md-3">
+															<div class="col-md-4">
+																<div class="form-group">
+																	<h3>TOTAL</h3>
+																</div>
+															</div>
+															<div class="col-md-8">
+																<div class="form-group">
+																	<h:inputText id="totalID"
+																		value="#{registroChequesController.totalNacional}"
+																		style="font-size: 12pt; color: #555555; background-image: none;"
+																		styleClass="input-lg form-control">
+																		<f:convertNumber type="number" groupingUsed="true"
+																			minFractionDigits="2" pattern="#0.00" />
+																		<p:ajax event="change"
+																			update="totalID,form001:literalID"
+																			listener="#{registroChequesController.convertToLeteral()}" />
+																	</h:inputText>
+																</div>
+															</div>
+														</div>
+													</div>
+
+													<p:separator />
+													<div class="col-md-12">
+														<div class="col-md-2">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h5>La suma de :</h5>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-10">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h:inputText id="literalID"
+																		value="#{registroChequesController.totalLiteral}  #{registroChequesController.tipoMoneda}"
+																		style="font-size: 9pt; color: #555555; background-image: none;"
+																		styleClass="input-sm form-control" readonly="true">
+																		<f:convertNumber type="number" groupingUsed="true"
+																			minFractionDigits="2" pattern="#0.00" />
+																	</h:inputText>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="col-md-2">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h5>Beneficiario</h5>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-10">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h:inputText
+																		value="#{registroChequesController.newMovimientoCuentas.pagare}"
+																		style="font-size: 9pt; color: #555555; background-image: none;"
+																		styleClass="input-sm form-control">
+																		<p:ajax event="change" />
+																	</h:inputText>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="col-md-2">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h5>Concepto</h5>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-10">
+															<div class="form-group">
+																<div class="col-md-12">
+																	<h:inputTextarea
+																		value="#{registroChequesController.newMovimientoCuentas.descripcion}"
+																		style="font-size: 9pt; color: #555555; background-image: none;"
+																		styleClass="input-sm form-control">
+																		<p:ajax event="change" />
+																	</h:inputTextarea>
+																</div>
+															</div>
+														</div>
+													</div>
+
+												</div>
+											</div>
+
+
+
+
+
+
+
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Lista Cheques</h3>
+									</div>
+									<!-- start here datatable -->
+									<p:dataTable id="dataTableCuenta" var="item"
+										widgetVar="cuentasTable"
+										value="#{registroChequesController.listMovimientoCuentas}"
+										style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+										emptyMessage="No se encontraron cuentas" rowKey="#{item.id}"
+										reflow="true">
+										<p:column width="8%" headerText="Nro Cheque"
+											filterStyle="width: 100%; height:25px;"
+											style="text-align:center;"
+											filterBy="#{item.numeroTransaccion}">
+											<h:outputText value="#{item.numeroTransaccion}" />
+										</p:column>
+										<p:column headerText="Transaccion" width="20%"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.tipoTransaccion}">
+											<h:outputText value="#{item.tipoTransaccion}" />
+										</p:column>
+										<p:column headerText="Descripcion"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.descripcion}">
+											<h:outputText value="#{item.descripcion}" />
+										</p:column>
+										<p:column headerText="Monto Nacional"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.montoNacional}">
+											<h:outputText value="#{item.montoNacional}" />
+										</p:column>
+
+										<p:column headerText="Monto Extranjero"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.montoExtranjero}">
+											<h:outputText value="#{item.montoExtranjero}" />
+										</p:column>
+
+										<p:column width="10%" filterStyle="width: 100%; height:25px;"
+											headerText="Estado" style="text-align:center;"
+											filterBy="#{item.estado}">
+											<span class="label label-success"><h:outputText
+													rendered="#{item.estado=='AC'}" value="Activo" /></span>
+											<span class="label label-danger"><h:outputText
+													rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+										</p:column>
+										<p:column width="10%" filterStyle="width: 100%; height:25px;"
+											style="text-align:center;" headerText="Usuario Reg."
+											filterBy="#{item.usuarioRegistro}">
+											<h:outputText value="#{item.usuarioRegistro}" />
+										</p:column>
+										<p:column width="10%" headerText="Fecha Reg."
+											style="text-align:center;"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.fechaRegistro}">
+											<h:outputText value="#{item.fechaRegistro}">
+												<f:convertDateTime pattern="dd/MM/yyyy" />
+											</h:outputText>
+										</p:column>
+										<f:facet name="footer">
+											<h:outputText
+												value="#{cuentasController.listCuentas.size()} Registros en Total" />
+										</f:facet>
+									</p:dataTable>
+									<!-- end here datatable -->
+									<div class="panel-body"></div>
+								</div>
+							</div>
+						</ui:fragment>
+
+						<ui:fragment rendered="#{  registroChequesController.verReporte}">
+
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Reporte</h3>
+									</div>
+									<div class="panel-body">
+										<p:media player="pdf" rendered="true"
+											value="#{registroChequesController.urlCheque}" width="800px"
+											height="1125px" />
+
+									</div>
+								</div>
+							</div>
+						</ui:fragment>
+					</div>
+
+
+				</h:form>
+			</section>
+		</div>
+		<!--END CONTENT-->
+
+		<!-- START GROWL -->
+		<h:form id="formGrowl">
+			<p:growl id="msgs1" showDetail="true" />
+		</h:form>
+		<!-- END GROWL -->
+
+
+
+
+	</ui:define>
+</ui:composition>

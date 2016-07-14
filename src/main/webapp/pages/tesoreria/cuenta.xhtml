@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template_main.xhtml">
+
+	<ui:define name="head">
+		<title>Cuenta</title>
+		<f:event listener="#{cuentasController.initConversation}"
+			type="preRenderView"></f:event>
+	</ui:define>
+	<ui:define name="content">
+
+		<!--BEGIN CONTENT-->
+		<div class="content">
+			<section class="content-header">
+				<div class="pull-left" style="padding-top: 8px;">
+					<h:form id="formBotonesHeader" style="padding-left: 10px;">
+						<div class="btn-group-demo">
+							<div class="btn-group">
+								<p:commandLink id="buttonCancelar" value="&#160; Cancelar"
+									styleClass="btn btn-warning ion-minus-circled"
+									rendered="#{cuentasController.modificar or cuentasController.registrar}"
+									update=":formReg,:formBotonesHeader,:formTableCuentas"
+									style="height:31px; padding:center"
+									action="#{cuentasController.actualizarFormReg()}">
+								</p:commandLink>
+								<p:commandLink id="buttonCrear1" value="&#160; Nuevo Cuenta"
+									styleClass="btn btn-success ion-plus-round"
+									rendered="#{cuentasController.crear}"
+									update=":formTableCuentas,:formReg,:formBotonesHeader"
+									action="#{cuentasController.cambiarAspecto()}"
+									style="height:31px;">
+								</p:commandLink>
+								<p:commandLink id="buttonRegistrar" value="&#160; Registrar"
+									styleClass="btn btn-success ion-checkmark"
+									style="height:31px; padding:center"
+									rendered="#{cuentasController.registrar}"
+									update=":formTableCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cuentasController.registrar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonModificar" value="&#160; Modificar"
+									styleClass="btn btn-primary ion-edit"
+									rendered="#{cuentasController.modificar}"
+									style="height:31px; padding:center"
+									update=":formTableCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cuentasController.modificar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonEliminar" value="&#160; Eliminar"
+									styleClass="btn btn-danger ion-close"
+									style="height:31px; padding:center"
+									rendered="#{cuentasController.modificar}"
+									update=":formTableCuentas,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{cuentasController.eliminar()}">
+								</p:commandLink>
+							</div>
+						</div>
+					</h:form>
+				</div>
+				<div class="pull-right">
+					<ol class="breadcrumb">
+						<li><a href="#{request.contextPath}/pages/dashboard.jsf"
+							style="color: #0090FF; font-size: 12px;">Inicio</a></li>
+						<li><a
+							href="#{request.contextPath}/pages/formulario/cuentas.xhtml"
+							style="color: #0090FF; font-size: 12px;">Venta</a></li>
+						<li class="active" style="font-size: 12px;">Cuenta</li>
+					</ol>
+				</div>
+			</section>
+			<section class="main-content">
+				<section class="main-content">
+					<div class="row">
+						<h:form id="formReg">
+							<ui:fragment
+								rendered="#{cuentasController.modificar or cuentasController.registrar}">
+								<div class="col-md-4">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Datos Cuenta</h3>
+										</div>
+										<div class="panel-body">
+											<!-- start here register -->
+											<div class="row">
+												<div class="col-md-12 box-content form-horizontal">
+
+													<div class="form-group">
+														<div class="col-md-4">Banco</div>
+														<div class="col-md-8">
+															<p:autoComplete id="cuentaBanco" style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																value="#{cuentasController.selectedBanco.nombre}"
+																completeMethod="#{cuentasController.completeBanco}"
+																minQueryLength="2" forceSelection="true" var="_var"
+																itemLabel="#{_var}" itemValue="#{_var.nombre}"
+																placeholder="Escriba Banco" maxResults="10"
+																dropdown="true">
+
+																<p:ajax event="itemSelect"
+																	update="cuentaBanco,numeroCuentaId"
+																	listener="#{cuentasController.onRowSelectBancoClick}" />
+
+																<p:column>
+																	<h:outputText value="#{_var.id}" />
+																</p:column>
+
+																<p:column>
+																	<h:outputText value="#{_var.nombre}" />
+																</p:column>
+
+															</p:autoComplete>
+														</div>
+
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Nro. Cuenta</div>
+														<div class="col-md-8">
+															<p:inputMask id="numeroCuentaId"
+																value="#{newCuentas.numeroCuenta}" required="true"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+
+															</p:inputMask>
+															<!-- mask="999-999999999999" -->
+														</div>
+													</div>
+
+													<div class="form-group">
+														<div class="col-md-4">Propietario</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newCuentas.propietario}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Tipo Cuenta</div>
+														<div class="col-md-8">
+															<h:selectOneMenu value="#{newCuentas.tipoCuenta}"
+																style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																styleClass="input-sm form-control">
+																<f:selectItem itemLabel="Cuenta Corriente"
+																	itemValue="CUENTA CORRIENTE" />
+																<f:selectItem itemLabel="Cuenta Ahorro"
+																	itemValue="CUENTA AHORRO" />
+																<p:ajax event="change" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+
+
+
+													<div class="form-group ">
+														<div class="col-md-4">Tipo Moneda</div>
+														<div class="col-md-8">
+															<h:selectOneMenu id="tipoMonedaID"
+																value="#{newCuentas.tipoMoneda}" style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																styleClass="input-sm form-control">
+																<f:selectItem itemLabel="Nacional" itemValue="NACIONAL" />
+																<f:selectItem itemLabel="Extranjera"
+																	itemValue="EXTRANJERA" />
+																<p:ajax event="change" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+
+
+													<div class="form-group ">
+														<div class="col-md-4">Ciudad</div>
+														<div class="col-md-8">
+															<h:inputText id="ciudadID" value="#{newCuentas.ciudad}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control" required="true"
+																requiredMessage="Ciudad Requerido">
+																<p:ajax event="change" update="ciudadID" />
+															</h:inputText>
+														</div>
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Estado</div>
+														<div class="col-md-8">
+															<h:selectOneMenu id="roles"
+																styleClass="input-sm form-control"
+																style=" color: #555555; height:25px; font-size:11px;"
+																disabled="#{newCuentas.estado =='SUPER'}"
+																immediate="true"
+																value="#{cuentasController.nombreEstado}">
+																<f:ajax />
+																<f:selectItems value="#{cuentasController.listEstado}" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- end here register -->
+										</div>
+									</div>
+								</div>
+								<ui:fragment rendered="#{cuentasController.modificar}">
+									<div class="col-md-8">
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<h3 class="panel-title">Lista Chequeras</h3>
+											</div>
+											<!-- start here datatable -->
+											<p:dataTable id="dataTableChequera" var="item"
+												widgetVar="chequerasTable"
+												value="#{cuentasController.listChequeras}"
+												selectionMode="single"
+												style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+												emptyMessage="No se encontraron Chequeras"
+												selection="#{cuentasController.selectedChequera}"
+												rowKey="#{item.id}" reflow="true">
+												<p:ajax event="rowSelect"
+													listener="#{cuentasController.onRowChequeraSelect}"
+													update=":formReg,:formBotonesHeader,:formTableCuentas" />
+												<p:column width="8%" headerText="Autorización"
+													filterStyle="width: 100%; height:25px;"
+													style="text-align:center;" filterBy="#{item.serie}">
+													<h:outputText value="#{item.serie}" />
+												</p:column>
+												<p:column headerText="Nro. Cheque"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.numeroInicial}">
+													<h:outputText value="#{item.numeroInicial}" />
+												</p:column>
+
+												<p:column headerText="Limite"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.numeroFinal}">
+													<h:outputText value="#{item.numeroFinal}" />
+												</p:column>
+
+												<p:column width="10%"
+													filterStyle="width: 100%; height:25px;" headerText="Estado"
+													style="text-align:center;" filterBy="#{item.estado}">
+													<span class="label label-success"><h:outputText
+															rendered="#{item.activo=='true'}" value="Activo" /></span>
+													<span class="label label-danger"><h:outputText
+															rendered="#{item.activo=='false'}" value="Inactivo" /></span>
+												</p:column>
+												<p:column width="10%"
+													filterStyle="width: 100%; height:25px;"
+													style="text-align:center;" headerText="Usuario Reg."
+													filterBy="#{item.usuarioRegistro}">
+													<h:outputText value="#{item.usuarioRegistro}" />
+												</p:column>
+												<p:column width="10%" headerText="Fecha Reg."
+													style="text-align:center;"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.fechaRegistro}">
+													<h:outputText value="#{item.fechaRegistro}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText>
+												</p:column>
+												<f:facet name="footer">
+													<h:outputText
+														value="#{cuentasController.listChequeras.size()} Registros en Total" />
+												</f:facet>
+											</p:dataTable>
+											<!-- end here datatable -->
+											<div class="panel-body">
+												<div class="form-group">
+													<div class="col-md-3">
+														<p:commandLink id="cancelarChequera"
+															value="&#160; Cancelar"
+															styleClass="btn btn-warning ion-minus-circled btn-block"
+															rendered="#{cuentasController.seleccionadaChequera}">
+															<p:ajax update="formReg"
+																listener="#{cuentasController.buttonCancelarChequera()}" />
+														</p:commandLink>
+													</div>
+													<div class="col-md-3">
+														<p:commandLink id="activarChequera" value="&#160; Activar"
+															styleClass="btn btn-success ion-plus-round btn-block"
+															rendered="#{cuentasController.seleccionadaChequera}">
+															<p:ajax update="formReg,formGrowl:msgs1"
+																listener="#{cuentasController.buttonActivarChequera()}" />
+														</p:commandLink>
+													</div>
+													<div class="col-md-3">
+														<p:commandLink id="modificarChequera"
+															value="&#160; Modificar"
+															styleClass="btn btn-primary ion-edit btn-block"
+															rendered="#{cuentasController.seleccionadaChequera}"
+															update="formModalChequera">
+															<p:ajax
+																listener="#{cuentasController.buttonModificarChequera()}" />
+														</p:commandLink>
+													</div>
+													<div class="col-md-3">
+														<p:commandLink id="agregarChequera"
+															value="&#160; Agregar Chequera."
+															styleClass="btn btn-success ion-plus-round btn-block"
+															rendered="#{ ! cuentasController.seleccionadaChequera}">
+															<p:ajax update="formModalChequera,:formReg"
+																listener="#{cuentasController.buttonAgregarChequera()}" />
+														</p:commandLink>
+														<p:commandLink id="eliminarChequera"
+															value="&#160; Eliminar"
+															styleClass="btn btn-danger ion-close btn-block"
+															rendered="#{cuentasController.seleccionadaChequera}"
+															update="formReg,formGrowl:msgs1"
+															actionListener="#{cuentasController.buttonEliminarChequera()}">
+														</p:commandLink>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</ui:fragment>
+								<ui:fragment rendered="#{cuentasController.registrar}">
+									<div class="col-md-8">
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<h3 class="panel-title">Lista Cuentas</h3>
+											</div>
+											<!-- start here datatable -->
+											<p:dataTable id="dataTableCuentas" var="item"
+												widgetVar="cuentasTable"
+												value="#{cuentasController.listCuentas}"
+												selectionMode="single"
+												style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+												emptyMessage="No se encontraron cuentas"
+												selection="#{cuentasController.selectedCuentas}"
+												rowKey="#{item.id}" reflow="true">
+												<p:ajax event="rowSelect"
+													listener="#{cuentasController.onRowSelect}"
+													update=":formReg,:formBotonesHeader,:formTableCuentas" />
+												<p:column width="8%" headerText="Código"
+													filterStyle="width: 100%; height:25px;"
+													style="text-align:center;" filterBy="#{item.id}">
+													<h:outputText value="#{item.id}" />
+												</p:column>
+												<p:column headerText="Nro. Cuenta" width="20%"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.numeroCuenta}">
+													<h:outputText value="#{item.numeroCuenta}" />
+												</p:column>
+												<p:column headerText="Tipo"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.tipoCuenta}">
+													<h:outputText value="#{item.tipoCuenta}" />
+												</p:column>
+
+												<p:column width="10%"
+													filterStyle="width: 100%; height:25px;" headerText="Estado"
+													style="text-align:center;" filterBy="#{item.estado}">
+													<span class="label label-success"><h:outputText
+															rendered="#{item.estado=='AC'}" value="Activo" /></span>
+													<span class="label label-danger"><h:outputText
+															rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+												</p:column>
+												<p:column width="10%"
+													filterStyle="width: 100%; height:25px;"
+													style="text-align:center;" headerText="Usuario Reg."
+													filterBy="#{item.usuarioRegistro}">
+													<h:outputText value="#{item.usuarioRegistro}" />
+												</p:column>
+												<p:column width="10%" headerText="Fecha Reg."
+													style="text-align:center;"
+													filterStyle="width: 100%; height:25px;"
+													filterBy="#{item.fechaRegistro}">
+													<h:outputText value="#{item.fechaRegistro}">
+														<f:convertDateTime pattern="dd/MM/yyyy" />
+													</h:outputText>
+												</p:column>
+												<f:facet name="footer">
+													<h:outputText
+														value="#{cuentasController.listCuentas.size()} Registros en Total" />
+												</f:facet>
+											</p:dataTable>
+											<!-- end here datatable -->
+											<div class="panel-body"></div>
+										</div>
+									</div>
+								</ui:fragment>
+							</ui:fragment>
+						</h:form>
+						<h:form id="formTableCuentas">
+							<ui:fragment rendered="#{cuentasController.crear}">
+								<div class="col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Lista Cuentas</h3>
+										</div>
+										<!-- start here datatable -->
+										<p:dataTable id="dataTableCuenta" var="item"
+											widgetVar="cuentasTable"
+											value="#{cuentasController.listCuentas}"
+											selectionMode="single"
+											style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+											emptyMessage="No se encontraron cuentas"
+											selection="#{cuentasController.selectedCuentas}"
+											rowKey="#{item.id}" reflow="true">
+											<p:ajax event="rowSelect"
+												listener="#{cuentasController.onRowSelect}"
+												update=":formReg,:formBotonesHeader,:formTableCuentas" />
+											<p:column width="8%" headerText="Código"
+												filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" filterBy="#{item.id}">
+												<h:outputText value="#{item.id}" />
+											</p:column>
+											<p:column headerText="Nro. Cuenta" width="20%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.numeroCuenta}">
+												<h:outputText value="#{item.numeroCuenta}" />
+											</p:column>
+											<p:column headerText="Tipo"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.tipoCuenta}">
+												<h:outputText value="#{item.tipoCuenta}" />
+											</p:column>
+
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												headerText="Estado" style="text-align:center;"
+												filterBy="#{item.estado}">
+												<span class="label label-success"><h:outputText
+														rendered="#{item.estado=='AC'}" value="Activo" /></span>
+												<span class="label label-danger"><h:outputText
+														rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" headerText="Usuario Reg."
+												filterBy="#{item.usuarioRegistro}">
+												<h:outputText value="#{item.usuarioRegistro}" />
+											</p:column>
+											<p:column width="10%" headerText="Fecha Reg."
+												style="text-align:center;"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.fechaRegistro}">
+												<h:outputText value="#{item.fechaRegistro}">
+													<f:convertDateTime pattern="dd/MM/yyyy" />
+												</h:outputText>
+											</p:column>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{cuentasController.listCuentas.size()} Registros en Total" />
+											</f:facet>
+										</p:dataTable>
+										<!-- end here datatable -->
+										<div class="panel-body"></div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+					</div>
+				</section>
+			</section>
+		</div>
+		<!--END CONTENT-->
+
+		<!-- START GROWL -->
+		<h:form id="formGrowl">
+			<p:growl id="msgs1" showDetail="true" />
+		</h:form>
+		<!-- END GROWL -->
+
+		<!-- START DIALOG -->
+		<p:dialog header="DIALOG TEST" widgetVar="dlg1" modal="true"
+			height="100%">
+		</p:dialog>
+		<!-- END DIALOG -->
+
+
+		<p:dialog header="DATOS CHEQUERA" widgetVar="dlgChequera" modal="true"
+			resizable="false" position="center" width="600px">
+			<h:form id="formModalChequera">
+
+				<div class="row">
+					<div class="col-md-3"></div>
+					<div class="col-md-6" align="center">
+						<strong> DATOS DE CHEQUE</strong>
+					</div>
+					<div class="col-md-3"></div>
+				</div>
+				<br />
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group ">
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="Banco" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="nombreDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.cuenta.banco.nombre}"
+											disabled="true">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="Nro. Cuenta" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="numeroCuentaDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.cuenta.numeroCuenta}"
+											disabled="true">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="Propietario" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="propietarioDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.cuenta.propietario}"
+											disabled="true">
+											<p:ajax event="change" />
+										</p:inputText>
+
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="N° serie" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="serieDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.serie}">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="N° Inicial" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="numeroInicialDialog"
+											styleClass="form-control" autocomplete="off"
+											value="#{cuentasController.chequera.numeroInicial}">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="Seciencia" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="secuenciaDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.secuencia}">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<div class="form-group ">
+									<div class="col-md-6">
+										<h:outputLabel value="Cantidad" />
+									</div>
+									<div class="col-md-6">
+										<p:inputText id="numeroFinalDialog" styleClass="form-control"
+											autocomplete="off"
+											value="#{cuentasController.chequera.numeroFinal}">
+											<p:ajax event="change" />
+										</p:inputText>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<br />
+
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group">
+							<div class="col-md-3"></div>
+							<div class="col-md-3"></div>
+							<div class="col-md-3">
+								<p:commandLink id="cancelarChequeraDialog"
+									value="&#160; Cancelar"
+									styleClass="btn btn-warning ion-minus-circled btn-block">
+									<p:ajax immediate="true"
+										listener="#{cuentasController.dialogCancelarChequera()}" />
+								</p:commandLink>
+							</div>
+							<div class="col-md-3">
+								<p:commandLink id="registrarChequeraDialog"
+									value="&#160; Registrar"
+									styleClass="btn btn-success ion-checkmark btn-block"
+									rendered="#{cuentasController.estadoButtonDialog}">
+									<p:ajax update="formGrowl:msgs1,formModalChequera,:formReg"
+										listener="#{cuentasController.agregarChequera()}" />
+								</p:commandLink>
+								<p:commandLink id="modificarChequeraDialog"
+									value="&#160; Modificar"
+									styleClass="btn btn-primary ion-edit btn-block"
+									rendered="#{ ! cuentasController.estadoButtonDialog}">
+									<p:ajax update="formGrowl:msgs1"
+										listener="#{cuentasController.modificarChequera()}" />
+								</p:commandLink>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+			</h:form>
+		</p:dialog>
+
+		<!-- PLAN DE CUENTA DIALOG  -->
+
+
+
+
+	</ui:define>
+</ui:composition>

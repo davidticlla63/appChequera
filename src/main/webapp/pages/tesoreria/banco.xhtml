@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template_main.xhtml">
+
+
+	<ui:define name="head">
+		<title>Banco</title>
+		<f:event listener="#{bancosController.initConversation}"
+			type="preRenderView"></f:event>
+	</ui:define>
+	<ui:define name="content">
+
+		<!--BEGIN CONTENT-->
+		<div class="content">
+			<section class="content-header">
+				<div class="pull-left" style="padding-top: 8px;">
+					<h:form id="formBotonesHeader" style="padding-left: 10px;">
+						<div class="btn-group-demo">
+							<div class="btn-group">
+							
+								<p:commandLink id="buttonCancelar" value="&#160; Cancelar"
+									styleClass="btn btn-warning ion-minus-circled"
+									rendered="#{bancosController.modificar or bancosController.registrar}"
+									update=":formReg,:formBotonesHeader,:formTableBancos"
+									style="height:31px; padding:center"
+									action="#{bancosController.actualizarFormReg()}">
+								</p:commandLink>
+								<p:commandLink id="buttonCrear1" value="&#160; Nuevo Banco"
+									styleClass="btn btn-success ion-plus-round"
+									rendered="#{bancosController.crear}"
+									update=":formTableBancos,:formReg,:formBotonesHeader"
+									action="#{bancosController.cambiarAspecto()}"
+									style="height:31px;">
+								</p:commandLink>
+								<p:commandLink id="buttonRegistrar" value="&#160; Registrar"
+									styleClass="btn btn-success ion-checkmark"
+									style="height:31px; padding:center"
+									rendered="#{bancosController.registrar}"
+									update=":formTableBancos,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{bancosController.registrar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonModificar" value="&#160; Modificar"
+									styleClass="btn btn-primary ion-edit"
+									rendered="#{bancosController.modificar}"
+									style="height:31px; padding:center"
+									update=":formTableBancos,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{bancosController.modificar()}">
+								</p:commandLink>
+								<p:commandLink id="buttonEliminar" value="&#160; Eliminar"
+									styleClass="btn btn-danger ion-close"
+									style="height:31px; padding:center"
+									rendered="#{bancosController.modificar}"
+									update=":formTableBancos,:formBotonesHeader,:formReg,formGrowl:msgs1"
+									action="#{bancosController.eliminar()}">
+								</p:commandLink>
+							</div>
+						</div>
+					</h:form>
+				</div>
+				<div class="pull-right">
+					<ol class="breadcrumb">
+						<li><a href="#{request.contextPath}/pages/dashboard.jsf"
+							style="color: #0090FF; font-size: 12px;">Inicio</a></li>
+						<li><a
+							href="#{request.contextPath}/pages/formulario/bancos.xhtml"
+							style="color: #0090FF; font-size: 12px;">Venta</a></li>
+						<li class="active" style="font-size: 12px;">Banco</li>
+					</ol>
+				</div>
+			</section>
+			<section class="main-content">
+				<section class="main-content">
+					<div class="row">
+						<h:form id="formReg">
+							<ui:fragment
+								rendered="#{bancosController.modificar or bancosController.registrar}">
+								<div class="col-md-4">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Datos Banco</h3>
+										</div>
+										<div class="panel-body">
+											<!-- start here register -->
+											<div class="row">
+												<div class="col-md-12 box-content form-horizontal">
+
+													
+
+													<div class="form-group ">
+														<div class="col-md-4">Nombre</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newBancos.nombre}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Sigla</div>
+														<div class="col-md-8">
+															<h:inputText id="siglaId" value="#{newBancos.sigla}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Dirección</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newBancos.direccion}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Correo</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newBancos.correo}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Telefono</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newBancos.telefono}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+
+													<div class="form-group ">
+														<div class="col-md-4">Nombre Ejecutivo</div>
+														<div class="col-md-8">
+															<h:inputText value="#{newBancos.nombreEjecutivo}"
+																style=" color: #555555; background-image: none;"
+																styleClass="input-sm form-control">
+																<p:ajax event="change" />
+															</h:inputText>
+														</div>
+													</div>
+
+
+													<div class="form-group ">
+														<div class="col-md-4">Tipo Banco</div>
+														<div class="col-md-8">
+															<h:selectOneMenu value="#{newBancos.tipo}"
+																style="width: 100%"
+																inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+																styleClass="input-sm form-control">
+																<f:selectItem itemLabel="PUBLICO" itemValue="PUBLICO" />
+																<f:selectItem itemLabel="PRIVADO" itemValue="PRIVADO" />
+																<f:selectItem itemLabel="MIXTO" itemValue="MIXTO" />
+																<p:ajax event="change" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+													<div class="form-group ">
+														<div class="col-md-4">Estado</div>
+														<div class="col-md-8">
+															<h:selectOneMenu id="roles"
+																styleClass="input-sm form-control"
+																style=" color: #555555; height:25px; font-size:11px;"
+																disabled="#{newBancos.estado =='SUPER'}"
+																immediate="true"
+																value="#{bancosController.nombreEstado}">
+																<f:ajax />
+																<f:selectItems value="#{bancosController.listEstado}" />
+															</h:selectOneMenu>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- end here register -->
+										</div>
+									</div>
+								</div>
+								<div class="col-md-8">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Lista Bancos</h3>
+										</div>
+										<!-- start here datatable -->
+										<p:dataTable id="dataTableBancoS" var="item"
+											widgetVar="bancosTable"
+											value="#{bancosController.listBancos}" selectionMode="single"
+											style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+											emptyMessage="No se encontraron bancos"
+											selection="#{bancosController.selectedBancos}"
+											rowKey="#{item.id}" reflow="true">
+											<p:ajax event="rowSelect"
+												listener="#{bancosController.onRowSelect}"
+												update=":formReg,:formBotonesHeader,:formTableBancos" />
+											<p:column width="8%" headerText="Código"
+												filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" filterBy="#{item.id}">
+												<h:outputText value="#{item.id}" />
+											</p:column>
+											<p:column headerText="Nombre"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.nombre}">
+												<h:outputText value="#{item.nombre}" />
+											</p:column>
+
+											<p:column headerText="Telefono" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.telefono}">
+												<h:outputText value="#{item.telefono}" />
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												headerText="Estado" style="text-align:center;"
+												filterBy="#{item.estado}">
+												<span class="label label-success"><h:outputText
+														rendered="#{item.estado=='AC'}" value="Activo" /></span>
+												<span class="label label-danger"><h:outputText
+														rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" headerText="Usuario Reg."
+												filterBy="#{item.usuarioRegistro}">
+												<h:outputText value="#{item.usuarioRegistro}" />
+											</p:column>
+											<p:column width="10%" headerText="Fecha Reg."
+												style="text-align:center;"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.fechaRegistro}">
+												<h:outputText value="#{item.fechaRegistro}">
+													<f:convertDateTime pattern="dd/MM/yyyy" />
+												</h:outputText>
+											</p:column>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{bancosController.listBancos.size()} Registros en Total" />
+											</f:facet>
+										</p:dataTable>
+										<!-- end here datatable -->
+										<div class="panel-body"></div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+						<h:form id="formTableBancos">
+							<ui:fragment rendered="#{bancosController.crear}">
+								<div class="col-md-12">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h3 class="panel-title">Lista Bancos</h3>
+										</div>
+										<!-- start here datatable -->
+										<p:dataTable id="dataTableBanco" var="item"
+											widgetVar="bancosTable"
+											value="#{bancosController.listBancos}" selectionMode="single"
+											style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+											emptyMessage="No se encontraron bancos"
+											selection="#{bancosController.selectedBancos}"
+											rowKey="#{item.id}" reflow="true">
+											<p:ajax event="rowSelect"
+												listener="#{bancosController.onRowSelect}"
+												update=":formReg,:formBotonesHeader,:formTableBancos" />
+											<p:column width="8%" headerText="Código"
+												filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" filterBy="#{item.id}">
+												<h:outputText value="#{item.id}" />
+											</p:column>
+											<p:column headerText="Nombre"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.nombre}">
+												<h:outputText value="#{item.nombre}" />
+											</p:column>
+
+											<p:column headerText="Telefono" width="10%"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.telefono}">
+												<h:outputText value="#{item.telefono}" />
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												headerText="Estado" style="text-align:center;"
+												filterBy="#{item.estado}">
+												<span class="label label-success"><h:outputText
+														rendered="#{item.estado=='AC'}" value="Activo" /></span>
+												<span class="label label-danger"><h:outputText
+														rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+											</p:column>
+											<p:column width="10%" filterStyle="width: 100%; height:25px;"
+												style="text-align:center;" headerText="Usuario Reg."
+												filterBy="#{item.usuarioRegistro}">
+												<h:outputText value="#{item.usuarioRegistro}" />
+											</p:column>
+											<p:column width="10%" headerText="Fecha Reg."
+												style="text-align:center;"
+												filterStyle="width: 100%; height:25px;"
+												filterBy="#{item.fechaRegistro}">
+												<h:outputText value="#{item.fechaRegistro}">
+													<f:convertDateTime pattern="dd/MM/yyyy" />
+												</h:outputText>
+											</p:column>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{bancosController.listBancos.size()} Registros en Total" />
+											</f:facet>
+										</p:dataTable>
+										<!-- end here datatable -->
+										<div class="panel-body"></div>
+									</div>
+								</div>
+							</ui:fragment>
+						</h:form>
+					</div>
+				</section>
+			</section>
+		</div>
+		<!--END CONTENT-->
+
+		<!-- START GROWL -->
+		<h:form id="formGrowl">
+			<p:growl id="msgs1" showDetail="true" />
+		</h:form>
+		<!-- END GROWL -->
+
+		<!-- START DIALOG -->
+		<p:dialog header="DIALOG TEST" widgetVar="dlg1" modal="true"
+			height="100%">
+		</p:dialog>
+		<!-- END DIALOG -->
+
+	</ui:define>
+</ui:composition>

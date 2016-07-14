@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template_main.xhtml">
+
+	<ui:define name="head">
+		<title>Cuenta</title>
+		<f:event listener="#{reportEstadoCuentasController.initConversation}"
+			type="preRenderView"></f:event>
+	</ui:define>
+	<ui:define name="content">
+
+		<!--BEGIN CONTENT-->
+		<div class="content">
+			<section class="content-header">
+				<div class="pull-left" style="padding-top: 8px;"></div>
+				<div class="pull-right">
+					<ol class="breadcrumb">
+						<li><a href="#{request.contextPath}/pages/dashboard.jsf"
+							style="color: #0090FF; font-size: 12px;">Inicio</a></li>
+						<li><a
+							href="#{request.contextPath}/pages/formulario/cuentas.xhtml"
+							style="color: #0090FF; font-size: 12px;">Venta</a></li>
+						<li class="active" style="font-size: 12px;">Cuenta</li>
+					</ol>
+				</div>
+			</section>
+			<section class="main-content">
+				<section class="main-content">
+					<div class="row">
+						<h:form id="formReg">
+
+							<div class="col-md-4">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Datos Cuenta</h3>
+									</div>
+									<div class="panel-body">
+										<!-- start here register -->
+										<div class="row">
+											<div class="col-md-12 box-content form-horizontal">
+
+												<div class="form-group">
+													<div class="col-md-4">Cuenta</div>
+													<div class="col-md-8">
+
+														<p:autoComplete id="cuentaID" style="width: 100%"
+															inputStyle="width: 100%; color: #555555; background-image: none; padding: 5px 10px;"
+															value="#{reportEstadoCuentasController.selectedCuentas.id}"
+															completeMethod="#{reportEstadoCuentasController.completeCuenta}"
+															minQueryLength="2" forceSelection="true" var="_var"
+															itemLabel="#{_var}" itemValue="#{_var.id}"
+															placeholder="Escriba Cuenta" maxResults="10"
+															dropdown="true">
+
+															<p:ajax event="itemSelect" update="formReg"
+																listener="#{reportEstadoCuentasController.onRowSelectCuentaClick}" />
+
+															<p:column>
+																<h:outputText value="#{_var.numeroCuenta}" />
+															</p:column>
+															<p:column>
+																<h:outputText value="#{_var.banco.nombre}" />
+															</p:column>
+
+														</p:autoComplete>
+													</div>
+
+												</div>
+
+												<div class="form-group ">
+													<div class="col-md-4">Nro. Cuenta</div>
+													<div class="col-md-8">
+														<p:inputText id="nroCuenta" styleClass="form-control"
+															autocomplete="off"
+															value="#{reportEstadoCuentasController.selectedCuentas.numeroCuenta}"
+															disabled="true">
+														</p:inputText>
+													</div>
+												</div>
+												<div class="form-group ">
+													<div class="col-md-4">Fecha Inicio</div>
+													<div class="col-md-8">
+														<p:calendar id="fechaInicio"
+															value="#{reportEstadoCuentasController.fechaInicio}"
+															locale="es" styleClass="myWid100" required="true"
+															requiredMessage="Fecha Venc. requerido"
+															pattern="dd/MM/yyyy">
+															<p:ajax event="dateSelect" />
+														</p:calendar>
+
+
+													</div>
+												</div>
+												<div class="form-group ">
+													<div class="col-md-4">Fecha Fin</div>
+													<div class="col-md-8">
+														<p:calendar id="fechaFin"
+															value="#{reportEstadoCuentasController.fechaFin}"
+															locale="es" styleClass="myWid100" required="true"
+															requiredMessage="Fecha Venc. requerido"
+															pattern="dd/MM/yyyy">
+
+															<p:ajax event="dateSelect" />
+														</p:calendar>
+
+													</div>
+												</div>
+
+												<div class="form-group ">
+													<div class="col-md-4"></div>
+													<div class="col-md-8">
+														<p:commandLink id="buttonBuscar" value="&#160; Buscar"
+															styleClass="btn btn-success ion-search"
+															style="height:31px; width:100%; padding:center"
+															update=":formReg,formGrowl:msgs1"
+															action="#{reportEstadoCuentasController.consultar()}">
+														</p:commandLink>
+													</div>
+												</div>
+
+											</div>
+										</div>
+										<!-- end here register -->
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-8">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Lista Movimiento Cheques</h3>
+
+										<p:commandLink target="_blank" ajax="false">
+											<p:graphicImage library="gfx" name="pdf.png" height="30"
+												width="30" />
+											<p:fileDownload
+												value="#{reportEstadoCuentasController.streamedUrlPdf}" />
+										</p:commandLink>
+
+										<p:commandLink target="_blank" ajax="false">
+											<p:graphicImage library="gfx" name="excel.png" height="30"
+												width="30" />
+											<p:fileDownload
+												value="#{reportEstadoCuentasController.streamedUrlExcel}" />
+										</p:commandLink>
+
+
+									</div>
+									<!-- start here datatable -->
+									<p:dataTable id="dataTableCuentas" var="item"
+										widgetVar="cuentasTable"
+										value="#{reportEstadoCuentasController.listMovimientoCuentas}"
+										style="font-size: 12px !important; line-height: 1.33846154 !important; font-family: sans-serif !important;"
+										emptyMessage="No se encontraron Movimientos"
+										rowKey="#{item.id}" reflow="true">
+										<p:column width="8%" headerText="Código"
+											filterStyle="width: 100%; height:25px;"
+											style="text-align:center;" filterBy="#{item.id}">
+											<h:outputText value="#{item.id}" />
+										</p:column>
+										<p:column headerText="Fecha"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.fechaRegistro}">
+											<h:outputText value="#{item.fechaRegistro}">
+												<f:convertDateTime pattern="dd/MM/yyyy" />
+											</h:outputText>
+										</p:column>
+										<p:column headerText="Nro. Cheque"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.numeroTransaccion}">
+											<h:outputText value="#{item.numeroTransaccion}" />
+										</p:column>
+
+										<p:column headerText="Concepto"
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.descripcion}">
+											<h:outputText value="#{item.descripcion}" />
+										</p:column>
+
+										<p:column headerText="Monto Bs."
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.montoNacional}">
+											<h:outputText value="#{item.montoNacional}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+										</p:column>
+										<p:column headerText="Monto Us."
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.montoExtranjero}">
+											<h:outputText value="#{item.montoExtranjero}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+										</p:column>
+
+										<p:column headerText="Itf Bs."
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.itf}">
+											<h:outputText value="#{item.itf}"
+												rendered="#{item.tipoMoneda=='BOLIVIANOS'}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+											<h:outputText value="#{item.itf*item.tipoCambio}"
+												rendered="#{item.tipoMoneda=='EXTRANJERO'}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+										</p:column>
+
+										<p:column headerText="Itf Bs."
+											filterStyle="width: 100%; height:25px;"
+											filterBy="#{item.saldo}">
+											<h:outputText value="#{item.saldo}"
+												rendered="#{item.tipoMoneda=='BOLIVIANOS'}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+											<h:outputText value="#{item.saldo*item.tipoCambio}"
+												rendered="#{item.tipoMoneda=='EXTRANJERO'}">
+												<f:convertNumber type="number" groupingUsed="true"
+													minFractionDigits="2" pattern="#0.00" />
+											</h:outputText>
+										</p:column>
+
+										<p:column width="10%" filterStyle="width: 100%; height:25px;"
+											headerText="Estado" style="text-align:center;"
+											filterBy="#{item.estado}">
+											<span class="label label-success"><h:outputText
+													rendered="#{item.estado=='AC'}" value="Activo" /></span>
+											<span class="label label-danger"><h:outputText
+													rendered="#{item.estado=='IN'}" value="Inactivo" /></span>
+										</p:column>
+										<p:column width="10%" filterStyle="width: 100%; height:25px;"
+											style="text-align:center;" headerText="Usuario Reg."
+											filterBy="#{item.usuarioRegistro}">
+											<h:outputText value="#{item.usuarioRegistro}" />
+										</p:column>
+										<f:facet name="footer">
+											<h:outputText
+												value="#{reportEstadoCuentasController.listMovimientoCuentas.size()} Registros en Total" />
+										</f:facet>
+									</p:dataTable>
+									<!-- end here datatable -->
+									<div class="panel-body"></div>
+								</div>
+							</div>
+						</h:form>
+
+					</div>
+				</section>
+			</section>
+		</div>
+		<!--END CONTENT-->
+
+		<!-- START GROWL -->
+		<h:form id="formGrowl">
+			<p:growl id="msgs1" showDetail="true" />
+		</h:form>
+		<!-- END GROWL -->
+
+		<!-- START DIALOG -->
+		<p:dialog header="DIALOG TEST" widgetVar="dlg1" modal="true"
+			height="100%">
+		</p:dialog>
+		<!-- END DIALOG -->
+
+
+
+
+		<!-- PLAN DE CUENTA DIALOG  -->
+
+
+
+
+	</ui:define>
+</ui:composition>
