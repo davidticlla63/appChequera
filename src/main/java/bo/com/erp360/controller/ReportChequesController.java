@@ -11,8 +11,11 @@ import bo.com.erp360.model.Usuario;
 import bo.com.erp360.util.FacesUtil;
 import bo.com.erp360.util.SessionMain;
 import bo.com.erp360.util.Time;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
@@ -31,6 +35,8 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -112,47 +118,19 @@ public class ReportChequesController
     return "kardex_producto.xhtml?faces-redirect=true";
   }
   
-  public void consultar()
-  {
-    try
-    {
-      System.out.println("Ingreso a consultar : " + this.tipoReporte);
-      String str;
-      switch ((str = this.tipoReporte).hashCode())
-      {
-      case -848203485: 
-        if (str.equals("Cobrados")) {
-          break;
-        }
-        break;
-      case -518520379: 
-        if (str.equals("SinCobrar")) {}
-      case 80982221: 
-        if ((goto 215) && (str.equals("Todos")))
-        {
-          this.listMovimientoCuentas = this.movimientoCuentasDao
-            .obtenerTodoMovimientosSobreFechasPorEmpresa(
-            this.empresaLogin, this.fechaInicio, this.fechaFin);
-          return;
-          
-          this.listMovimientoCuentas = this.movimientoCuentasDao
-            .obtenerCobradosMovimientosSobreFechasPorEmpresa(
-            this.empresaLogin, this.fechaInicio, this.fechaFin);
-          return;
-          
-          this.listMovimientoCuentas = this.movimientoCuentasDao
-            .obtenerSinCobrarMovimientosSobreFechasPorEmpresa(
-            this.empresaLogin, this.fechaInicio, this.fechaFin);
-        }
-        break;
-      }
-    }
-    catch (Exception e)
-    {
-      FacesUtil.infoMessage("Error en consiltar", "MovimientoCuentas " + 
-        this.listMovimientoCuentas.size());
-    }
-  }
+	public void consultar() {
+		try {
+			System.out.println("Ingreso a consultar : " + tipoReporte);
+			listMovimientoCuentas = movimientoCuentasDao
+					.obtenerTodoMovimientosSobreFechasPorCuenta(
+							selectedCuentas, empresaLogin, fechaInicio,
+							fechaFin);
+
+		} catch (Exception e) {
+			FacesUtil.infoMessage("Error en consiltar", "MovimientoCuentas "
+					+ listMovimientoCuentas.size());
+		}
+	}
   
   public void setStreamedUrlExcel(StreamedContent streamedUrlExcel)
   {
@@ -268,193 +246,74 @@ public class ReportChequesController
     return null;
   }
   
-  /* Error */
-  private static File stream2fileExcel(InputStream in)
-    throws java.io.IOException
-  {
-    // Byte code:
-    //   0: ldc_w 402
-    //   3: ldc_w 404
-    //   6: invokestatic 406	java/io/File:createTempFile	(Ljava/lang/String;Ljava/lang/String;)Ljava/io/File;
-    //   9: astore_1
-    //   10: aload_1
-    //   11: invokevirtual 410	java/io/File:deleteOnExit	()V
-    //   14: aconst_null
-    //   15: astore_2
-    //   16: aconst_null
-    //   17: astore_3
-    //   18: new 413	java/io/FileOutputStream
-    //   21: dup
-    //   22: aload_1
-    //   23: invokespecial 415	java/io/FileOutputStream:<init>	(Ljava/io/File;)V
-    //   26: astore 4
-    //   28: aload_0
-    //   29: aload 4
-    //   31: invokestatic 416	org/apache/commons/io/IOUtils:copy	(Ljava/io/InputStream;Ljava/io/OutputStream;)I
-    //   34: pop
-    //   35: aload 4
-    //   37: ifnull +46 -> 83
-    //   40: aload 4
-    //   42: invokevirtual 422	java/io/FileOutputStream:close	()V
-    //   45: goto +38 -> 83
-    //   48: astore_2
-    //   49: aload 4
-    //   51: ifnull +8 -> 59
-    //   54: aload 4
-    //   56: invokevirtual 422	java/io/FileOutputStream:close	()V
-    //   59: aload_2
-    //   60: athrow
-    //   61: astore_3
-    //   62: aload_2
-    //   63: ifnonnull +8 -> 71
-    //   66: aload_3
-    //   67: astore_2
-    //   68: goto +13 -> 81
-    //   71: aload_2
-    //   72: aload_3
-    //   73: if_acmpeq +8 -> 81
-    //   76: aload_2
-    //   77: aload_3
-    //   78: invokevirtual 425	java/lang/Throwable:addSuppressed	(Ljava/lang/Throwable;)V
-    //   81: aload_2
-    //   82: athrow
-    //   83: aload_1
-    //   84: areturn
-    // Line number table:
-    //   Java source line #268	-> byte code offset #0
-    //   Java source line #269	-> byte code offset #10
-    //   Java source line #271	-> byte code offset #14
-    //   Java source line #271	-> byte code offset #18
-    //   Java source line #272	-> byte code offset #28
-    //   Java source line #273	-> byte code offset #35
-    //   Java source line #275	-> byte code offset #83
-    // Local variable table:
-    //   start	length	slot	name	signature
-    //   0	85	0	in	InputStream
-    //   9	75	1	tempFile	File
-    //   15	1	2	localObject1	Object
-    //   48	15	2	localObject2	Object
-    //   67	15	2	localObject3	Object
-    //   17	1	3	localObject4	Object
-    //   61	17	3	localThrowable	Throwable
-    //   26	29	4	out	java.io.FileOutputStream
-    // Exception table:
-    //   from	to	target	type
-    //   28	35	48	finally
-    //   18	61	61	finally
-  }
-  
-  /* Error */
-  private static File stream2file(InputStream in)
-    throws java.io.IOException
-  {
-    // Byte code:
-    //   0: ldc_w 402
-    //   3: ldc_w 436
-    //   6: invokestatic 406	java/io/File:createTempFile	(Ljava/lang/String;Ljava/lang/String;)Ljava/io/File;
-    //   9: astore_1
-    //   10: aload_1
-    //   11: invokevirtual 410	java/io/File:deleteOnExit	()V
-    //   14: aconst_null
-    //   15: astore_2
-    //   16: aconst_null
-    //   17: astore_3
-    //   18: new 413	java/io/FileOutputStream
-    //   21: dup
-    //   22: aload_1
-    //   23: invokespecial 415	java/io/FileOutputStream:<init>	(Ljava/io/File;)V
-    //   26: astore 4
-    //   28: aload_0
-    //   29: aload 4
-    //   31: invokestatic 416	org/apache/commons/io/IOUtils:copy	(Ljava/io/InputStream;Ljava/io/OutputStream;)I
-    //   34: pop
-    //   35: aload 4
-    //   37: ifnull +46 -> 83
-    //   40: aload 4
-    //   42: invokevirtual 422	java/io/FileOutputStream:close	()V
-    //   45: goto +38 -> 83
-    //   48: astore_2
-    //   49: aload 4
-    //   51: ifnull +8 -> 59
-    //   54: aload 4
-    //   56: invokevirtual 422	java/io/FileOutputStream:close	()V
-    //   59: aload_2
-    //   60: athrow
-    //   61: astore_3
-    //   62: aload_2
-    //   63: ifnonnull +8 -> 71
-    //   66: aload_3
-    //   67: astore_2
-    //   68: goto +13 -> 81
-    //   71: aload_2
-    //   72: aload_3
-    //   73: if_acmpeq +8 -> 81
-    //   76: aload_2
-    //   77: aload_3
-    //   78: invokevirtual 425	java/lang/Throwable:addSuppressed	(Ljava/lang/Throwable;)V
-    //   81: aload_2
-    //   82: athrow
-    //   83: aload_1
-    //   84: areturn
-    // Line number table:
-    //   Java source line #280	-> byte code offset #0
-    //   Java source line #281	-> byte code offset #10
-    //   Java source line #283	-> byte code offset #14
-    //   Java source line #283	-> byte code offset #18
-    //   Java source line #284	-> byte code offset #28
-    //   Java source line #285	-> byte code offset #35
-    //   Java source line #287	-> byte code offset #83
-    // Local variable table:
-    //   start	length	slot	name	signature
-    //   0	85	0	in	InputStream
-    //   9	75	1	tempFile	File
-    //   15	1	2	localObject1	Object
-    //   48	15	2	localObject2	Object
-    //   67	15	2	localObject3	Object
-    //   17	1	3	localObject4	Object
-    //   61	17	3	localThrowable	Throwable
-    //   26	29	4	out	java.io.FileOutputStream
-    // Exception table:
-    //   from	to	target	type
-    //   28	35	48	finally
-    //   18	61	61	finally
-  }
-  
-  public List<Cuenta> completeCuenta(String query)
-  {
-    this.listCuentas = new ArrayList();
-    List<Cuenta> results = new ArrayList();
-    List<Banco> listbBancos = this.bancoDao.obtenerPorNombreConsulta(query
-      .toUpperCase());
-    Iterator localIterator2;
-    for (Iterator localIterator1 = listbBancos.iterator(); localIterator1.hasNext(); localIterator2.hasNext())
-    {
-      Banco banco = (Banco)localIterator1.next();
-      this.listCuentas = this.cuentaDao.obtenerPorBanco(banco);
-      localIterator2 = this.listCuentas.iterator(); continue;Cuenta i = (Cuenta)localIterator2.next();
-      if (i.getBanco().getNombre().toUpperCase().startsWith(query.toUpperCase())) {
-        results.add(i);
-      }
-    }
-    this.listCuentas = results;
-    return results;
-  }
-  
-  public void onRowSelectCuentaClick(SelectEvent event)
-  {
-    Integer idChequera = Integer.valueOf(Integer.parseInt(event.getObject().toString()));
-    System.out
-      .println("Ingreso a onRowSelectChequeraClick : " + idChequera);
-    for (Cuenta i : this.listCuentas)
-    {
-      System.out.println(i.getBanco().getNombre());
-      if (i.getId().intValue() == idChequera.intValue())
-      {
-        this.selectedCuentas = i;
-        return;
-      }
-    }
-  }
+  private static File stream2file(InputStream in) throws IOException {
+
+		final File tempFile = File.createTempFile("Reporte", ".pdf");
+		tempFile.deleteOnExit();
+
+		try (FileOutputStream out = new FileOutputStream(tempFile)) {
+			IOUtils.copy(in, out);
+		}
+
+		return tempFile;
+	}
+
+	private static File stream2fileTXT(InputStream in) throws IOException {
+
+		final File tempFile = File.createTempFile("Reporte", ".txt");
+		tempFile.deleteOnExit();
+
+		try (FileOutputStream out = new FileOutputStream(tempFile)) {
+			IOUtils.copy(in, out);
+		}
+
+		return tempFile;
+	}
+
+	private static File stream2fileExcel(InputStream in) throws IOException {
+
+		final File tempFile = File.createTempFile("Reporte", ".xls");
+		tempFile.deleteOnExit();
+
+		try (FileOutputStream out = new FileOutputStream(tempFile)) {
+			IOUtils.copy(in, out);
+		}
+
+		return tempFile;
+	}
+ 
+	// ONCOMPLETETEXT Cuenta
+	public List<Cuenta> completeCuenta(String query) {
+		listCuentas = new ArrayList<Cuenta>();// reset
+		List<Cuenta> results = new ArrayList<Cuenta>();
+		List<Banco> listbBancos = bancoDao.obtenerPorNombreConsulta(query
+				.toUpperCase());
+		for (Banco banco : listbBancos) {
+			listCuentas = cuentaDao.obtenerPorBanco(banco);
+			for (Cuenta i : listCuentas) {
+				if (i.getBanco().getNombre().toUpperCase()
+						.startsWith(query.toUpperCase())) {
+					results.add(i);
+				}
+			}
+		}
+		listCuentas = results;
+		return results;
+	}
+
+	public void onRowSelectCuentaClick(SelectEvent event) {
+		Integer idChequera = Integer.parseInt(event.getObject().toString());
+		System.out
+				.println("Ingreso a onRowSelectChequeraClick : " + idChequera);
+		for (Cuenta i : listCuentas) {
+			System.out.println(i.getBanco().getNombre());
+			if (i.getId().intValue() == idChequera.intValue()) {
+				selectedCuentas = i;
+				return;
+			}
+		}
+	}
+
   
   public Cuenta getSelectedCuentas()
   {

@@ -1,29 +1,30 @@
 package bo.com.erp360.util;
 
-public class Base64
-{
-  private String resultado;
-  private long va;
-  
-  public Base64(long valor)
-  {
-    this.va = valor;
-  }
-  
-  public String getResultado()
-  {
-    long cociente = 1L;
-    long resto = 0L;
-    String resul = "";
-    while (cociente > 0L)
-    {
-      cociente = this.va / 64L;
-      resto = this.va % 64L;
-      Diccionario dic = new Diccionario();
-      resul = dic.getValor((int)resto) + resul;
-      this.va = cociente;
-    }
-    this.resultado = resul;
-    return this.resultado;
-  }
+public class Base64 {
+	
+	 private String resultado;
+	    private long va;
+	    public Base64(long valor) {
+	        va=valor;
+	    }
+
+	    /**
+	     * @return the resultado
+	     */
+	    public String getResultado() {
+	        long cociente=1;
+	        long resto=0;
+	        String resul="";
+	        while (cociente>0){
+	            cociente=va/64;
+	            resto=va%64;
+	            Diccionario dic=new Diccionario();
+	            resul=dic.getValor((int)resto)+resul;
+	            va=cociente;
+	        }
+	        resultado=resul;
+	        return resultado;
+	    }
+
+	
 }

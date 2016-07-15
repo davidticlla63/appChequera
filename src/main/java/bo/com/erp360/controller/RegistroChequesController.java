@@ -283,48 +283,48 @@ public class RegistroChequesController
     }
   }
   
-  public List<Chequera> completeChequera(String query)
-  {
-    this.listChequeras = new ArrayList();
-    List<Chequera> results = new ArrayList();
-    List<Banco> listbBancos = this.bancoDao.obtenerPorNombreConsulta(query
-      .toUpperCase());
-    Iterator localIterator2;
-    for (Iterator localIterator1 = listbBancos.iterator(); localIterator1.hasNext(); localIterator2.hasNext())
-    {
-      Banco banco = (Banco)localIterator1.next();
-      this.listChequeras = this.chequeraDao.obtenerPorBanco(banco);
-      localIterator2 = this.listChequeras.iterator(); continue;Chequera i = (Chequera)localIterator2.next();
-      if (i.getBanco().getNombre().toUpperCase().startsWith(query.toUpperCase())) {
-        results.add(i);
-      }
-    }
-    this.listChequeras = results;
-    return results;
-  }
-  
-  public void onRowSelectChequeraClick(SelectEvent event)
-  {
-    Integer idChequera = Integer.valueOf(Integer.parseInt(event.getObject().toString()));
-    System.out
-      .println("Ingreso a onRowSelectChequeraClick : " + idChequera);
-    System.out.println(this.listChequeras.size());
-    for (Chequera i : this.listChequeras)
-    {
-      System.out.println(i.getBanco().getNombre());
-      if (i.getId().intValue() == idChequera.intValue())
-      {
-        setSelectedChequera(i);
-        this.newMovimientoCuentas.setCuenta(this.selectedChequera.getCuenta());
-        this.newMovimientoCuentas.setNumeroCheque(this.selectedChequera
-          .getSecuencia());
-        this.newMovimientoCuentas.setLugar(this.selectedChequera.getCuenta()
-          .getCiudad());
-        convetirTipoMoneda();
-        return;
-      }
-    }
-  }
+	// ONCOMPLETETEXT Cuenta
+	public List<Chequera> completeChequera(String query) {
+		listChequeras = new ArrayList<Chequera>();// reset
+		List<Chequera> results = new ArrayList<Chequera>();
+		List<Banco> listbBancos = bancoDao.obtenerPorNombreConsulta(query
+				.toUpperCase());
+		for (Banco banco : listbBancos) {
+			listChequeras = chequeraDao.obtenerPorBanco(banco);
+			for (Chequera i : listChequeras) {
+				if (i.getBanco().getNombre().toUpperCase()
+						.startsWith(query.toUpperCase())) {
+					results.add(i);
+				}
+			}
+		}
+
+		listChequeras = results;
+		return results;
+	}
+
+	public void onRowSelectChequeraClick(SelectEvent event) {
+		Integer idChequera = Integer.parseInt(event.getObject().toString());
+		System.out
+				.println("Ingreso a onRowSelectChequeraClick : " + idChequera);
+		System.out.println(listChequeras.size());
+		for (Chequera i : listChequeras) {
+			System.out.println(i.getBanco().getNombre());
+			if (i.getId().intValue() == idChequera.intValue()) {
+				setSelectedChequera(i);
+
+				newMovimientoCuentas.setCuenta(selectedChequera.getCuenta());
+				newMovimientoCuentas.setNumeroCheque(selectedChequera
+						.getSecuencia());
+				newMovimientoCuentas.setLugar(selectedChequera.getCuenta()
+						.getCiudad());
+				//newMovimientoCuentas.setTipoCambio(newPago.getTipoCambio());
+				convetirTipoMoneda();
+				return;
+			}
+		}
+	}
+
   
   public boolean isModificar()
   {

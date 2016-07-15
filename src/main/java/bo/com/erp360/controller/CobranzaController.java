@@ -257,44 +257,38 @@ public class CobranzaController
     resetearFitrosTabla("formTableMovimientoCuentas:dataTableCuenta");
   }
   
-  public List<Cuenta> completeCuenta(String query)
-  {
-    this.listCuentas = new ArrayList();
-    List<Cuenta> results = new ArrayList();
-    List<Banco> listbBancos = this.bancoDao.obtenerPorNombreConsulta(query
-      .toUpperCase());
-    Iterator localIterator2;
-    for (Iterator localIterator1 = listbBancos.iterator(); localIterator1.hasNext(); localIterator2.hasNext())
-    {
-      Banco banco = (Banco)localIterator1.next();
-      this.listCuentas = this.cuentaDao.obtenerPorBanco(banco);
-      localIterator2 = this.listCuentas.iterator(); continue;Cuenta i = (Cuenta)localIterator2.next();
-      if (i.getBanco().getNombre().toUpperCase().startsWith(query.toUpperCase())) {
-        results.add(i);
-      }
-    }
-    this.listCuentas = results;
-    return results;
-  }
-  
-  public void onRowSelectCuentaClick(SelectEvent event)
-  {
-    Integer idChequera = Integer.valueOf(Integer.parseInt(event.getObject().toString()));
-    System.out.println("Ingreso a onRowSelectCuentaClick : " + idChequera);
-    System.out.println(this.listCuentas.size());
-    for (Cuenta i : this.listCuentas)
-    {
-      System.out.println(i.getBanco().getNombre());
-      if (i.getId().intValue() == idChequera.intValue())
-      {
-        setSelectedCuenta(i);
-        this.newMovimientoCuentas.setNumeroCheque(this.selectedCuenta.getId().intValue());
-        this.newMovimientoCuentas.setCuenta(this.selectedCuenta);
-        return;
-      }
-    }
-  }
-  
+//ONCOMPLETETEXT Cuenta
+	public List<Cuenta> completeCuenta(String query) {
+		listCuentas = new ArrayList<Cuenta>();// reset
+		List<Cuenta> results = new ArrayList<Cuenta>();
+		List<Banco> listbBancos = bancoDao.obtenerPorNombreConsulta(query
+				.toUpperCase());
+		for (Banco banco : listbBancos) {
+			listCuentas = cuentaDao.obtenerPorBanco(banco);
+			for (Cuenta i : listCuentas) {
+				if (i.getBanco().getNombre().toUpperCase()
+						.startsWith(query.toUpperCase())) {
+					results.add(i);
+				}
+			}
+		}
+		listCuentas = results;
+		return results;
+	}
+
+	public void onRowSelectCuentaClick(SelectEvent event) {
+		Integer idChequera = Integer.parseInt(event.getObject().toString());
+		System.out
+				.println("Ingreso a onRowSelectChequeraClick : " + idChequera);
+		for (Cuenta i : listCuentas) {
+			System.out.println(i.getBanco().getNombre());
+			if (i.getId().intValue() == idChequera.intValue()) {
+				selectedCuenta = i;
+				return;
+			}
+		}
+	}
+
   public boolean isModificar()
   {
     return this.modificar;

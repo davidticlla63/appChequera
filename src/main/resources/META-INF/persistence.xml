@@ -20,7 +20,7 @@
 		<!-- The datasource is deployed as WEB-INF/erp360-ds.xml, you can find 
 			it in the source at src/main/webapp/WEB-INF/erp360-ds.xml -->
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<jta-data-source>java:jboss/datasources/erp360DS</jta-data-source>
+		<jta-data-source>java:jboss/datasources/chequeraDS</jta-data-source>
 		<properties>
 			<!-- Properties for Hibernate -->
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />

@@ -5,8 +5,8 @@
 
 <jboss-web>
 
-	<security-domain>java:jboss/jaas/chuequeraSecurity</security-domain>
-<!-- 	<context-root>/</context-root> -->
-<!--      <virtual-host>host-dev-erp360</virtual-host> -->
+	<security-domain>securityChequera</security-domain> 
+ 	<!-- <context-root>AppV1</context-root>  -->
+	<!-- <virtual-host>host-dev-erp360</virtual-host> -->
 
 </jboss-web>

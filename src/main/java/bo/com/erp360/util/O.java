@@ -1,3 +1,5 @@
 package bo.com.erp360.util;
 
-public class O {}
+public class O {
+
+}
