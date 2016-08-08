@@ -23,6 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import bo.com.erp360.dao.BancoDao;
+import bo.com.erp360.dao.ChequeraDao;
+import bo.com.erp360.model.Banco;
+import bo.com.erp360.model.Chequera;
 import bo.com.erp360.util.Conexion;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -33,13 +37,14 @@ import net.sf.jasperreports.engine.util.JRLoader;
 @WebServlet("/ReportCheque")
 public class ReportCheque extends HttpServlet {
 
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6308433847370414322L;
 	@Inject
 	private EntityManager em;
+
+	private @Inject BancoDao bancoDao;
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -54,8 +59,7 @@ public class ReportCheque extends HttpServlet {
 
 		try {
 			Context ctx = new InitialContext();
-			DataSource ds = (DataSource) ctx
-					.lookup(Conexion.datasourse);
+			DataSource ds = (DataSource) ctx.lookup(Conexion.datasourse);
 			conn = ds.getConnection();
 
 			if (conn != null) {
@@ -71,15 +75,31 @@ public class ReportCheque extends HttpServlet {
 		try {
 
 			try {
-//				Integer pIdSucursal = Integer.parseInt(request.getParameter("pIdSucursal"));
-				Integer pIdEmpresa = Integer.parseInt(request.getParameter("pIdEmpresa"));
-				/*String pNombreEmpresa = request.getParameter("pNombreEmpresa");*/
-				Integer pIdCheque = Integer.parseInt(request.getParameter("pIdCheque"));
-				
+				// Integer pIdSucursal =
+				// Integer.parseInt(request.getParameter("pIdSucursal"));
+				Integer pIdEmpresa = Integer.parseInt(request
+						.getParameter("pIdEmpresa"));
+				/*
+				 * String pNombreEmpresa =
+				 * request.getParameter("pNombreEmpresa");
+				 */
+				Integer pIdCheque = Integer.parseInt(request
+						.getParameter("pIdCheque"));
+
 				System.out.println("Conexion em: " + em.isOpen());
 
 				String realPath = request.getRealPath("/");
 				System.out.println("Real Path: " + realPath);
+				Banco banco = new Banco();
+				
+				banco = em.find(Banco.class, pIdEmpresa);
+				if (banco == null) {
+					System.err.println("No existe chequera..");
+					return;
+				} else {
+					System.out.println("Existe chequera : "
+							+ banco.getSigla() );
+				}
 
 				// load JasperDesign from XML and compile it into
 				// JasperReport
@@ -87,30 +107,34 @@ public class ReportCheque extends HttpServlet {
 						+ request.getServletContext().getContextPath());
 				System.out.println("Context getServletPath: "
 						+ request.getServletPath());
-				System.out
-				.println("Context getSession().getServletContext(): "+ request.getSession().getServletContext()
-						.getRealPath("/"));
+				System.out.println("Context getSession().getServletContext(): "
+						+ request.getSession().getServletContext()
+								.getRealPath("/"));
 
 				String urlPath = request.getRequestURL().toString();
-				urlPath = urlPath.substring(0, urlPath.length()- request.getRequestURI().length())+ request.getContextPath() + "/";
+				urlPath = urlPath.substring(0, urlPath.length()
+						- request.getRequestURI().length())
+						+ request.getContextPath() + "/";
 				System.out.println("URL ::::: " + urlPath);
 
-				String URL_SERVLET_LOGO = urlPath+"ServletImageLogo?id="+1+"&type=EMPRESA";
+				//String URL_SERVLET_LOGO = urlPath + "ServletImageLogo?id=" + 1
+				//		+ "&type=EMPRESA";
 
-				System.out.println("URL_SERVLET_LOGO: " + URL_SERVLET_LOGO);
+				//System.out.println("URL_SERVLET_LOGO: " + URL_SERVLET_LOGO);
 				// create a map of parameters to pass to the report.
 				Map parameters = new HashMap();
-//				parameters.put("ID_SUCURSAL", pIdSucursal);
-				//parameters.put("pLogo", URL_SERVLET_LOGO);
-				parameters.put("ID_EMPRESA", pIdEmpresa);
-				/*parameters.put("NOMBRE_EMPRESA", pNombreEmpresa);*/
-				parameters.put("id", pIdCheque);
+				// parameters.put("ID_SUCURSAL", pIdSucursal);
+				// parameters.put("pLogo", URL_SERVLET_LOGO);
+				//parameters.put("ID_EMPRESA", new Integer(pIdEmpresa));
+				/* parameters.put("NOMBRE_EMPRESA", pNombreEmpresa); */
+				parameters.put("id",pIdCheque);
 
-				String rutaReporte =  urlPath + "resources/report/tesoreria/reportCheque.jasper";
-				
+				String rutaReporte = urlPath
+						+ "resources/report/tesoreria/reportCheque"
+						+ banco.getSigla() + ".jasper";
+
 				System.out.println("Parametros : " + parameters.toString());
 				System.out.println("rutaReporte: " + rutaReporte);
-
 
 				// find file .jasper
 				jasperReport = (JasperReport) JRLoader.loadObject(new URL(
