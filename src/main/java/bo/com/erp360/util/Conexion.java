@@ -8,7 +8,7 @@ public class Conexion implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -2579990640927344648L;
-	public static String datasourse = "java:jboss/datasources/erp360DS";
+	public static String datasourse = "java:jboss/datasources/chequeraDS";
 	//erp360DS
 
 	public String getDatasourse() {

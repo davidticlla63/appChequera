@@ -44,209 +44,241 @@ import org.richfaces.cdi.push.Push;
 
 @Named("reportChequesController")
 @ConversationScoped
-public class ReportChequesController
-  implements Serializable
-{
-  private static final long serialVersionUID = -7962140858225961561L;
-  public static final String PUSH_CDI_TOPIC = "pushCdi";
-  @Inject
-  @Push(topic="pushCdi")
-  Event<String> pushEventCuenta;
-  @Inject
-  private FacesContext facesContext;
-  @Inject
-  Conversation conversation;
-  @Inject
-  private CuentaDao cuentaDao;
-  @Inject
-  private BancoDao bancoDao;
-  @Inject
-  private MovimientoCuentasDao movimientoCuentasDao;
-  private Date fechaInicio = Time.getPrimerDiaDelMes(new Date());
-  private Date fechaFin = Time.getUltimoDiaDelMes(new Date());
-  private String nombreEstado = "ACTIVO";
-  private Cuenta selectedCuentas;
-  private List<Cuenta> listCuentas = new ArrayList();
-  private List<MovimientoCuentas> listMovimientoCuentas = new ArrayList();
-  @Inject
-  private SessionMain sessionMain;
-  private Usuario usuarioLogin;
-  private Empresa empresaLogin;
-  private String urlReport;
-  private String tipoReporte;
-  private StreamedContent streamedUrlExcel;
-  private StreamedContent streamedUrlPdf;
-  
-  @PostConstruct
-  public void initNewCuentas()
-  {
-    System.out.println(" init new initNewCuenta");
-    this.usuarioLogin = this.sessionMain.getUsuarioLogin();
-    this.empresaLogin = this.sessionMain.getEmpresaLogin();
-    loadDefault();
-  }
-  
-  private void loadDefault()
-  {
-    System.out.println("Incio loadDefault()");
-    
-    this.selectedCuentas = new Cuenta();
-    this.listCuentas = this.cuentaDao.obtenerOrdenDescPorId();
-    
-    this.listMovimientoCuentas = this.movimientoCuentasDao
-      .obtenerTodoMovimientosSobreFechasPorEmpresa(this.empresaLogin, 
-      this.fechaInicio, this.fechaFin);
-  }
-  
-  public void initConversation()
-  {
-    if ((!FacesContext.getCurrentInstance().isPostback()) && 
-      (this.conversation.isTransient()))
-    {
-      this.conversation.begin();
-      System.out.println(">>>>>>>>>> CONVERSACION INICIADA...");
-    }
-  }
-  
-  public String endConversation()
-  {
-    if (!this.conversation.isTransient())
-    {
-      this.conversation.end();
-      System.out.println(">>>>>>>>>> CONVERSACION TERMINADA...");
-    }
-    return "kardex_producto.xhtml?faces-redirect=true";
-  }
-  
+public class ReportChequesController implements Serializable {
+	private static final long serialVersionUID = -7962140858225961561L;
+	public static final String PUSH_CDI_TOPIC = "pushCdi";
+	@Inject
+	@Push(topic = "pushCdi")
+	Event<String> pushEventCuenta;
+	@Inject
+	private FacesContext facesContext;
+	@Inject
+	Conversation conversation;
+	@Inject
+	private CuentaDao cuentaDao;
+	@Inject
+	private BancoDao bancoDao;
+	@Inject
+	private MovimientoCuentasDao movimientoCuentasDao;
+	private Date fechaInicio = Time.getPrimerDiaDelMes(new Date());
+	private Date fechaFin = Time.getUltimoDiaDelMes(new Date());
+	private String nombreEstado = "ACTIVO";
+	private Cuenta selectedCuentas;
+	private List<Cuenta> listCuentas = new ArrayList();
+	private List<MovimientoCuentas> listMovimientoCuentas = new ArrayList();
+	@Inject
+	private SessionMain sessionMain;
+	private Usuario usuarioLogin;
+	private Empresa empresaLogin;
+	private String urlReport;
+	private String tipoReporte;
+	private StreamedContent streamedUrlExcel;
+	private StreamedContent streamedUrlPdf;
+
+	@PostConstruct
+	public void initNewCuentas() {
+		System.out.println(" init new initNewCuenta");
+		this.usuarioLogin = this.sessionMain.getUsuarioLogin();
+		this.empresaLogin = this.sessionMain.getEmpresaLogin();
+		loadDefault();
+	}
+
+	private void loadDefault() {
+		System.out.println("Incio loadDefault()");
+
+		this.selectedCuentas = new Cuenta();
+		this.listCuentas = this.cuentaDao.obtenerOrdenDescPorId();
+
+		this.listMovimientoCuentas = this.movimientoCuentasDao
+				.obtenerTodoMovimientosSobreFechasPorEmpresa(this.empresaLogin,
+						this.fechaInicio, this.fechaFin);
+	}
+
+	public void initConversation() {
+		if ((!FacesContext.getCurrentInstance().isPostback())
+				&& (this.conversation.isTransient())) {
+			this.conversation.begin();
+			System.out.println(">>>>>>>>>> CONVERSACION INICIADA...");
+		}
+	}
+
+	public String endConversation() {
+		if (!this.conversation.isTransient()) {
+			this.conversation.end();
+			System.out.println(">>>>>>>>>> CONVERSACION TERMINADA...");
+		}
+		return "kardex_producto.xhtml?faces-redirect=true";
+	}
+
 	public void consultar() {
 		try {
-			System.out.println("Ingreso a consultar : " + tipoReporte);
-			listMovimientoCuentas = movimientoCuentasDao
-					.obtenerTodoMovimientosSobreFechasPorCuenta(
-							selectedCuentas, empresaLogin, fechaInicio,
-							fechaFin);
+			switch (tipoReporte) {
+			case "Todos":
+				System.out.println("Ingreso a consultar : " + tipoReporte);
+				listMovimientoCuentas = movimientoCuentasDao
+						.obtenerTodoMovimientosSobreFechasPorEmpresa(
+								empresaLogin, fechaInicio, fechaFin);
+				break;
+			case "Cobrados":
+				System.out.println("Ingreso a consultar : " + tipoReporte);
+				listMovimientoCuentas = movimientoCuentasDao
+						.obtenerCobradosMovimientosSobreFechasPorEmpresa(
+								empresaLogin, fechaInicio, fechaFin);
+				break;
+			case "SinCobrar":
+				System.out.println("Ingreso a consultar : " + tipoReporte);
+				listMovimientoCuentas = movimientoCuentasDao
+						.obtenerSinCobrarMovimientosSobreFechasPorEmpresa(
+								empresaLogin, fechaInicio, fechaFin);
+				break;
+			default:
+				break;
+			}
 
 		} catch (Exception e) {
 			FacesUtil.infoMessage("Error en consiltar", "MovimientoCuentas "
 					+ listMovimientoCuentas.size());
 		}
 	}
-  
-  public void setStreamedUrlExcel(StreamedContent streamedUrlExcel)
-  {
-    this.streamedUrlExcel = streamedUrlExcel;
-  }
-  
-  public StreamedContent getStreamedUrlExcel()
-  {
-    try
-    {
-      HttpServletRequest request = (HttpServletRequest)this.facesContext
-        .getExternalContext().getRequest();
-      String urlPath = request.getRequestURL().toString();
-      urlPath = urlPath
-        .substring(0, urlPath.length() - request.getRequestURI().length()) + 
-        request.getContextPath() + "/";
-      String urlPDFreporte = urlPath + 
-        "ReportMovimientoChequesExcel?pIdEmpresa=" + 
-        URLEncoder.encode(new StringBuilder().append(this.empresaLogin.getId()).toString(), "UTF-8") + 
-        "&pTipoReporte=" + 
-        URLEncoder.encode(new StringBuilder().append(this.tipoReporte).toString(), "UTF-8") + 
-        "&pNombreEmpresa=" + 
-        URLEncoder.encode(new StringBuilder().append(this.empresaLogin.getRazonSocial()).toString(), 
-        "ISO-8859-1") + 
-        "&pFechaInicio=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.obtenerFormatoYYYYMMDD(this.fechaInicio)).toString(), 
-        "UTF-8") + 
-        "&pFechaFin=" + 
-        
-        URLEncoder.encode(new StringBuilder().append(Time.obtenerFormatoYYYYMMDD(this.fechaFin)).toString(), 
-        "UTF-8") + 
-        "&pFechaInicioTxt=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.convertSimpleDateToString(this.fechaInicio)).toString(), 
-        "ISO-8859-1") + 
-        "&pFechaFinTxt=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.convertSimpleDateToString(this.fechaFin)).toString(), 
-        "ISO-8859-1");
-      System.out.println(urlPDFreporte);
-      URL url = new URL(urlPDFreporte);
-      
-      InputStream is1 = url.openStream();
-      File f = stream2fileExcel(is1);
-      System.out.println("Size Bytes: " + f.length());
-      InputStream stream = new FileInputStream(f);
-      this.streamedUrlExcel = new DefaultStreamedContent(stream, 
-        "application/vnd.ms-excel", "LibroVentasSFV.xls");
-      
-      return this.streamedUrlExcel;
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      System.out.println("Error en getStreamedLibroVentas: " + 
-        e.getMessage());
-    }
-    return null;
-  }
-  
-  public StreamedContent getStreamedUrlPdf()
-  {
-    try
-    {
-      HttpServletRequest request = (HttpServletRequest)this.facesContext
-        .getExternalContext().getRequest();
-      String urlPath = request.getRequestURL().toString();
-      urlPath = urlPath
-        .substring(0, urlPath.length() - request.getRequestURI().length()) + 
-        request.getContextPath() + "/";
-      String urlPDFreporte = urlPath + 
-        "ReportMovimientoCheques?pIdEmpresa=" + 
-        URLEncoder.encode(new StringBuilder().append(this.empresaLogin.getId()).toString(), "UTF-8") + 
-        "&pTipoReporte=" + 
-        URLEncoder.encode(new StringBuilder().append(this.tipoReporte).toString(), "UTF-8") + 
-        "&pNombreEmpresa=" + 
-        URLEncoder.encode(new StringBuilder().append(this.empresaLogin.getRazonSocial()).toString(), 
-        "ISO-8859-1") + 
-        "&pFechaInicio=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.obtenerFormatoYYYYMMDD(this.fechaInicio)).toString(), 
-        "UTF-8") + 
-        "&pFechaFin=" + 
-        
-        URLEncoder.encode(new StringBuilder().append(Time.obtenerFormatoYYYYMMDD(this.fechaFin)).toString(), 
-        "UTF-8") + 
-        "&pFechaInicioTxt=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.convertSimpleDateToString(this.fechaInicio)).toString(), 
-        "ISO-8859-1") + 
-        "&pFechaFinTxt=" + 
-        URLEncoder.encode(
-        new StringBuilder().append(Time.convertSimpleDateToString(this.fechaFin)).toString(), 
-        "ISO-8859-1");
-      System.out.println(urlPDFreporte);
-      URL url = new URL(urlPDFreporte);
-      
-      InputStream is1 = url.openStream();
-      File f = stream2file(is1);
-      System.out.println("Size Bytes: " + f.length());
-      InputStream stream = new FileInputStream(f);
-      this.streamedUrlPdf = new DefaultStreamedContent(stream, 
-        "application/pdf", "ListaReporte.pdf");
-      return this.streamedUrlPdf;
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-      System.out.println("Error en getStreamedLibroVentas: " + 
-        e.getMessage());
-    }
-    return null;
-  }
-  
-  private static File stream2file(InputStream in) throws IOException {
+
+	public void setStreamedUrlExcel(StreamedContent streamedUrlExcel) {
+		this.streamedUrlExcel = streamedUrlExcel;
+	}
+
+	public StreamedContent getStreamedUrlExcel() {
+		try {
+			HttpServletRequest request = (HttpServletRequest) this.facesContext
+					.getExternalContext().getRequest();
+			String urlPath = request.getRequestURL().toString();
+			urlPath = urlPath.substring(0, urlPath.length()
+					- request.getRequestURI().length())
+					+ request.getContextPath() + "/";
+			String urlPDFreporte = urlPath
+					+ "ReportMovimientoChequesExcel?pIdEmpresa="
+					+ URLEncoder.encode(
+							new StringBuilder().append(
+									this.empresaLogin.getId()).toString(),
+							"UTF-8")
+					+ "&pTipoReporte="
+					+ URLEncoder.encode(
+							new StringBuilder().append(this.tipoReporte)
+									.toString(), "UTF-8")
+					+ "&pNombreEmpresa="
+					+ URLEncoder.encode(
+							new StringBuilder().append(
+									this.empresaLogin.getRazonSocial())
+									.toString(), "ISO-8859-1")
+					+ "&pFechaInicio="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.obtenerFormatoYYYYMMDD(this.fechaInicio))
+									.toString(), "UTF-8")
+					+ "&pFechaFin="
+					+
+
+					URLEncoder.encode(
+							new StringBuilder().append(
+									Time.obtenerFormatoYYYYMMDD(this.fechaFin))
+									.toString(), "UTF-8")
+					+ "&pFechaInicioTxt="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.convertSimpleDateToString(this.fechaInicio))
+									.toString(), "ISO-8859-1")
+					+ "&pFechaFinTxt="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.convertSimpleDateToString(this.fechaFin))
+									.toString(), "ISO-8859-1");
+			System.out.println(urlPDFreporte);
+			URL url = new URL(urlPDFreporte);
+
+			InputStream is1 = url.openStream();
+			File f = stream2fileExcel(is1);
+			System.out.println("Size Bytes: " + f.length());
+			InputStream stream = new FileInputStream(f);
+			this.streamedUrlExcel = new DefaultStreamedContent(stream,
+					"application/vnd.ms-excel", "LibroVentasSFV.xls");
+
+			return this.streamedUrlExcel;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error en getStreamedLibroVentas: "
+					+ e.getMessage());
+		}
+		return null;
+	}
+
+	public StreamedContent getStreamedUrlPdf() {
+		try {
+			HttpServletRequest request = (HttpServletRequest) this.facesContext
+					.getExternalContext().getRequest();
+			String urlPath = request.getRequestURL().toString();
+			urlPath = urlPath.substring(0, urlPath.length()
+					- request.getRequestURI().length())
+					+ request.getContextPath() + "/";
+			String urlPDFreporte = urlPath
+					+ "ReportMovimientoCheques?pIdEmpresa="
+					+ URLEncoder.encode(
+							new StringBuilder().append(
+									this.empresaLogin.getId()).toString(),
+							"UTF-8")
+					+ "&pTipoReporte="
+					+ URLEncoder.encode(
+							new StringBuilder().append(this.tipoReporte)
+									.toString(), "UTF-8")
+					+ "&pNombreEmpresa="
+					+ URLEncoder.encode(
+							new StringBuilder().append(
+									this.empresaLogin.getRazonSocial())
+									.toString(), "ISO-8859-1")
+					+ "&pFechaInicio="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.obtenerFormatoYYYYMMDD(this.fechaInicio))
+									.toString(), "UTF-8")
+					+ "&pFechaFin="
+					+
+
+					URLEncoder.encode(
+							new StringBuilder().append(
+									Time.obtenerFormatoYYYYMMDD(this.fechaFin))
+									.toString(), "UTF-8")
+					+ "&pFechaInicioTxt="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.convertSimpleDateToString(this.fechaInicio))
+									.toString(), "ISO-8859-1")
+					+ "&pFechaFinTxt="
+					+ URLEncoder
+							.encode(new StringBuilder()
+									.append(Time
+											.convertSimpleDateToString(this.fechaFin))
+									.toString(), "ISO-8859-1");
+			System.out.println(urlPDFreporte);
+			URL url = new URL(urlPDFreporte);
+
+			InputStream is1 = url.openStream();
+			File f = stream2file(is1);
+			System.out.println("Size Bytes: " + f.length());
+			InputStream stream = new FileInputStream(f);
+			this.streamedUrlPdf = new DefaultStreamedContent(stream,
+					"application/pdf", "ListaReporte.pdf");
+			return this.streamedUrlPdf;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error en getStreamedLibroVentas: "
+					+ e.getMessage());
+		}
+		return null;
+	}
+
+	private static File stream2file(InputStream in) throws IOException {
 
 		final File tempFile = File.createTempFile("Reporte", ".pdf");
 		tempFile.deleteOnExit();
@@ -281,7 +313,7 @@ public class ReportChequesController
 
 		return tempFile;
 	}
- 
+
 	// ONCOMPLETETEXT Cuenta
 	public List<Cuenta> completeCuenta(String query) {
 		listCuentas = new ArrayList<Cuenta>();// reset
@@ -314,89 +346,72 @@ public class ReportChequesController
 		}
 	}
 
-  
-  public Cuenta getSelectedCuentas()
-  {
-    return this.selectedCuentas;
-  }
-  
-  public void setSelectedCuentas(Cuenta selectedCuentas)
-  {
-    this.selectedCuentas = selectedCuentas;
-  }
-  
-  public String getNombreEstado()
-  {
-    return this.nombreEstado;
-  }
-  
-  public void setNombreEstado(String nombreEstado)
-  {
-    this.nombreEstado = nombreEstado;
-  }
-  
-  public Date getFechaInicio()
-  {
-    return this.fechaInicio;
-  }
-  
-  public void setFechaInicio(Date fechaInicio)
-  {
-    this.fechaInicio = fechaInicio;
-  }
-  
-  public Date getFechaFin()
-  {
-    return this.fechaFin;
-  }
-  
-  public void setFechaFin(Date fechaFin)
-  {
-    this.fechaFin = fechaFin;
-  }
-  
-  public List<Cuenta> getListCuentas()
-  {
-    return this.listCuentas;
-  }
-  
-  public void setListCuentas(List<Cuenta> listCuentas)
-  {
-    this.listCuentas = listCuentas;
-  }
-  
-  public List<MovimientoCuentas> getListMovimientoCuentas()
-  {
-    return this.listMovimientoCuentas;
-  }
-  
-  public void setListMovimientoCuentas(List<MovimientoCuentas> listMovimientoCuentas)
-  {
-    this.listMovimientoCuentas = listMovimientoCuentas;
-  }
-  
-  public String getUrlReport()
-  {
-    return this.urlReport;
-  }
-  
-  public void setUrlReport(String urlReport)
-  {
-    this.urlReport = urlReport;
-  }
-  
-  public void setStreamedUrlPdf(StreamedContent streamedUrlPdf)
-  {
-    this.streamedUrlPdf = streamedUrlPdf;
-  }
-  
-  public String getTipoReporte()
-  {
-    return this.tipoReporte;
-  }
-  
-  public void setTipoReporte(String tipoReporte)
-  {
-    this.tipoReporte = tipoReporte;
-  }
+	public Cuenta getSelectedCuentas() {
+		return this.selectedCuentas;
+	}
+
+	public void setSelectedCuentas(Cuenta selectedCuentas) {
+		this.selectedCuentas = selectedCuentas;
+	}
+
+	public String getNombreEstado() {
+		return this.nombreEstado;
+	}
+
+	public void setNombreEstado(String nombreEstado) {
+		this.nombreEstado = nombreEstado;
+	}
+
+	public Date getFechaInicio() {
+		return this.fechaInicio;
+	}
+
+	public void setFechaInicio(Date fechaInicio) {
+		this.fechaInicio = fechaInicio;
+	}
+
+	public Date getFechaFin() {
+		return this.fechaFin;
+	}
+
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
+
+	public List<Cuenta> getListCuentas() {
+		return this.listCuentas;
+	}
+
+	public void setListCuentas(List<Cuenta> listCuentas) {
+		this.listCuentas = listCuentas;
+	}
+
+	public List<MovimientoCuentas> getListMovimientoCuentas() {
+		return this.listMovimientoCuentas;
+	}
+
+	public void setListMovimientoCuentas(
+			List<MovimientoCuentas> listMovimientoCuentas) {
+		this.listMovimientoCuentas = listMovimientoCuentas;
+	}
+
+	public String getUrlReport() {
+		return this.urlReport;
+	}
+
+	public void setUrlReport(String urlReport) {
+		this.urlReport = urlReport;
+	}
+
+	public void setStreamedUrlPdf(StreamedContent streamedUrlPdf) {
+		this.streamedUrlPdf = streamedUrlPdf;
+	}
+
+	public String getTipoReporte() {
+		return this.tipoReporte;
+	}
+
+	public void setTipoReporte(String tipoReporte) {
+		this.tipoReporte = tipoReporte;
+	}
 }

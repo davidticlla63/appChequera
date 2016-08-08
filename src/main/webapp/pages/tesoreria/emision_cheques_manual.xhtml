@@ -45,6 +45,7 @@
 											styleClass="btn btn-success ion-checkmark"
 											rendered="#{registroChequesController.crear and !registroChequesController.verReporte}"
 											style="height:31px;"
+											update="form001"
 											action="#{registroChequesController.registrarMovimientoCuenta()}">
 										</p:commandLink>
 
@@ -139,7 +140,6 @@
 																			locale="es" styleClass="myWid100" required="true"
 																			requiredMessage="Fecha Venc. requerido"
 																			pattern="dd/MM/yyyy">
-
 																			<p:ajax event="dateSelect" />
 																		</p:calendar>
 																	</div>

@@ -1,37 +1,35 @@
 package bo.com.erp360.util;
 
-
 public class NumerosToLetras {
-	
-	
+
 	public static void main(String[] args) {
-		String country = System.getProperty("user.country"); 
+		String country = System.getProperty("user.country");
 		String lan = System.getProperty("user.language");
-		System.out.println("country: "+country);
-		System.out.println("lan: "+lan);
-		System.out.println(" = "+ convertNumberToLetter(5130.50));
-	   }
-	
+		System.out.println("country: " + country);
+		System.out.println("lan: " + lan);
+		System.out.println(" = " + convertNumberToLetter(5130.50));
+	}
+
 	public static String convertNumberToLetter(String number)
 			throws NumberFormatException {
-		
-		String country = System.getProperty("user.country"); 
+
+		String country = System.getProperty("user.country");
 		String lan = "es";// System.getProperty("user.language");
-		System.out.println("country: "+country);
-		System.out.println("lan: "+lan);
-		
+		System.out.println("country: " + country);
+		System.out.println("lan: " + lan);
+
 		String converted = new String();
-		
+
 		String splitNumber[] = null;
-		//INGLES
-		if(lan.equals("en")){
+		// INGLES
+		if (lan.equals("en")) {
 			System.out.println(">>>>>> Idioma Ingles....");
-			splitNumber = number.replace('.', '#').split("#"); //INGLES
+			splitNumber = number.replace('.', '#').split("#"); // INGLES
 		}
-		//ESPANOL
-		if(lan.equals("es")){
+		// ESPANOL
+		if (lan.equals("es")) {
 			System.out.println(">>>>>> Idioma Espaniol....");
-			splitNumber = number.replace(',', '#').split("#"); //ESPANIOL
+			splitNumber = number.replace(',', '#').split("#"); // ESPANIOL
 		}
 
 		// Descompone el trio de millones
@@ -71,33 +69,32 @@ public class NumerosToLetras {
 				splitNumber[1], 2))
 				+ String.valueOf(getDigitAt(splitNumber[1], 1))
 				+ String.valueOf(getDigitAt(splitNumber[1], 0)));
-		
-		converted +=" "+ String.valueOf(centavos)+"/100 Bolivianos";
+
+		converted += " " + String.valueOf(centavos) + "/100 Bolivianos";
 
 		return converted;
 	}
-	
-	
+
 	public static String convertNumberToLetterSM(String number)
 			throws NumberFormatException {
-		
-		String country = System.getProperty("user.country"); 
+
+		String country = System.getProperty("user.country");
 		String lan = "es";// System.getProperty("user.language");
-		System.out.println("country: "+country);
-		System.out.println("lan: "+lan);
-		
+		System.out.println("country: " + country);
+		System.out.println("lan: " + lan);
+
 		String converted = new String();
-		
+
 		String splitNumber[] = null;
-		//INGLES
-		if(lan.equals("en")){
+		// INGLES
+		if (lan.equals("en")) {
 			System.out.println(">>>>>> Idioma Ingles....");
-			splitNumber = number.replace('.', '#').split("#"); //INGLES
+			splitNumber = number.replace('.', '#').split("#"); // INGLES
 		}
-		//ESPANOL
-		if(lan.equals("es")){
+		// ESPANOL
+		if (lan.equals("es")) {
 			System.out.println(">>>>>> Idioma Espaniol....");
-			splitNumber = number.replace(',', '#').split("#"); //ESPANIOL
+			splitNumber = number.replace(',', '#').split("#"); // ESPANIOL
 		}
 
 		// Descompone el trio de millones
@@ -137,46 +134,49 @@ public class NumerosToLetras {
 				splitNumber[1], 2))
 				+ String.valueOf(getDigitAt(splitNumber[1], 1))
 				+ String.valueOf(getDigitAt(splitNumber[1], 0)));
-		
-		if (centavos==0) {
-			converted +=" 00/100	";	
-		}else{
-			converted +=" "+ String.valueOf(centavos)+"/100	";			
+
+		if (centavos == 0) {
+			converted += " 00/100	";
+		} else {
+			if (centavos > 9) {
+				converted += " " + String.valueOf(centavos) + "/100	";
+			} else {
+				converted += " 0" + String.valueOf(centavos) + "/100 ";
+			}
 		}
-		
 
 		return converted;
 	}
-	
+
 	private static final String[] UNIDADES = { "", "UN ", "DOS ", "TRES ",
 			"CUATRO ", "CINCO ", "SEIS ", "SIETE ", "OCHO ", "NUEVE ", "DIEZ ",
 			"ONCE ", "DOCE ", "TRECE ", "CATORCE ", "QUINCE ", "DIECISEIS ",
 			"DIECISIETE ", "DIECIOCHO ", "DIECINUEVE ", "VEINTE " };
 
-	private static final String[] DECENAS = { "VEINTI", "TREINTA ", "CUARENTA ",
-			"CINCUENTA ", "SESENTA ", "SETENTA ", "OCHENTA ", "NOVENTA ",
-			"CIEN " };
+	private static final String[] DECENAS = { "VEINTI", "TREINTA ",
+			"CUARENTA ", "CINCUENTA ", "SESENTA ", "SETENTA ", "OCHENTA ",
+			"NOVENTA ", "CIEN " };
 
 	private static final String[] CENTENAS = { "CIENTO ", "DOSCIENTOS ",
 			"TRESCIENTOS ", "CUATROCIENTOS ", "QUINIENTOS ", "SEISCIENTOS ",
 			"SETECIENTOS ", "OCHOCIENTOS ", "NOVECIENTOS " };
 
 	public static String convertNumberToLetter(double number) {
-		try{
+		try {
 			return convertNumberToLetter(doubleToString(number));
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error en convertNumberToLetter..."+e);
+			System.out.println("Error en convertNumberToLetter..." + e);
 			return null;
 		}
 	}
-	
+
 	public static String convertNumberToLetterSM(double number) {
-		try{
+		try {
 			return convertNumberToLetterSM(doubleToString(number));
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error en convertNumberToLetter..."+e);
+			System.out.println("Error en convertNumberToLetter..." + e);
 			return null;
 		}
 	}
@@ -190,10 +190,11 @@ public class NumerosToLetras {
 			return origin.charAt(origin.length() - position - 1) - 48;
 		return 0;
 	}
-	
+
 	private static String convertNumber(String number) {
 		if (number.length() > 3)
-			throw new NumberFormatException("La longitud maxima debe ser 3 digitos");
+			throw new NumberFormatException(
+					"La longitud maxima debe ser 3 digitos");
 
 		String output = new String();
 		if (getDigitAt(number, 2) != 0)
@@ -219,5 +220,4 @@ public class NumerosToLetras {
 		return output;
 	}
 
-	
 }

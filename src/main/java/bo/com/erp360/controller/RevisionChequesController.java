@@ -10,11 +10,13 @@ import bo.com.erp360.util.Fechas;
 import bo.com.erp360.util.NumerosToLetras;
 import bo.com.erp360.util.SessionMain;
 import bo.com.erp360.util.Time;
+
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
@@ -24,6 +26,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.richfaces.cdi.push.Push;
@@ -288,19 +291,25 @@ public class RevisionChequesController
     }
   }
   
-  public String obtenerUrCheque()
-  {
-    HttpServletRequest request = (HttpServletRequest)this.facesContext
-      .getExternalContext().getRequest();
-    String urlPath = request.getRequestURL().toString();
-    urlPath = urlPath
-      .substring(0, urlPath.length() - request.getRequestURI().length()) + 
-      request.getContextPath() + "/";
-    String urlPDFreporte = urlPath + "ReportCheque?pIdEmpresa=" + 
-      this.empresaLogin.getId() + "&pIdCheque=" + 
-      this.newMovimientoCuentas.getId();
-    return urlPDFreporte;
-  }
+  public String obtenerUrCheque() {
+		try {
+			System.out.println("Ingreso a obtenerUrCheque");
+			HttpServletRequest request = (HttpServletRequest) this.facesContext
+					.getExternalContext().getRequest();
+			String urlPath = request.getRequestURL().toString();
+			urlPath = urlPath.substring(0, urlPath.length()
+					- request.getRequestURI().length())
+					+ request.getContextPath() + "/";
+			String urlPDFreporte = urlPath + "ReportCheque?pIdEmpresa="
+					+ this.empresaLogin.getId() + "&pIdCheque="
+					+ this.newMovimientoCuentas.getId();
+			return urlPDFreporte;
+		} catch (Exception e) {
+			System.err.println("Error en obtenerUrCheque : "+e.getLocalizedMessage());
+			return null;
+		}
+
+	}
   
   public String obtenerMontoLiteral(double totalFactura)
   {
